@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/threadSafePriorityQueue.iml" filepath="$PROJECT_DIR$/threadSafePriorityQueue.iml" />
+      <module fileurl="file://$PROJECT_DIR$/threadsafe-pq.iml" filepath="$PROJECT_DIR$/threadsafe-pq.iml" />
     </modules>
   </component>
 </project>
