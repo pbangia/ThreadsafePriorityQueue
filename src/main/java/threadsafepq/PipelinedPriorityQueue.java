@@ -12,20 +12,40 @@ import java.util.concurrent.TimeUnit;
  */
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
+    private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
+    private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
+
+    private BinaryArrayElement[] binaryArray;
+    private TokenArrayElement[] tokenArray;
+    private Comparator<? super E> comparator;
+
     public PipelinedPriorityQueue() {
-        // default constructor
+        this.binaryArray = new BinaryArrayElement[DEFAULT_CAPACITY_NUM_ELEMENTS];
+        this.tokenArray = new TokenArrayElement[DEFAULT_CAPACITY_NUM_LEVELS];
     }
 
     public PipelinedPriorityQueue(Collection<? extends E> c) {
-
+        if (c == null) throw new IllegalArgumentException("Input collection cannot be null");
+        int size = c.size();
+        int levels = BinaryTreeUtils.convertSizeToNumLevels(size);
+        this.binaryArray = new BinaryArrayElement[size];
+        this.tokenArray = new TokenArrayElement[levels];
     }
 
     public PipelinedPriorityQueue(int initialCapacity) {
-
+        if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
+        int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
+        this.binaryArray = new BinaryArrayElement[initialCapacity];
+        this.tokenArray = new TokenArrayElement[levels];
     }
 
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
-
+        if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
+        if (comparator == null) throw new IllegalArgumentException("Input comparator cannot be null");
+        int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
+        this.binaryArray = new BinaryArrayElement[initialCapacity];
+        this.tokenArray = new TokenArrayElement[levels];
+        this.comparator = comparator;
     }
 
     public boolean offer(E e) {
