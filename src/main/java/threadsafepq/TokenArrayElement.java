@@ -12,6 +12,12 @@ public class TokenArrayElement<E> {
     private E value;
     private int position;
 
+    public TokenArrayElement(Operation operation, E value, int position) {
+        this.operation = operation;
+        this.value = value;
+        this.position = position;
+    }
+
     protected enum Operation {
         ENQUEUE,
         DEQUEUE,

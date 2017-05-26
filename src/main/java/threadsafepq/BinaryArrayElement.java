@@ -12,6 +12,12 @@ public class BinaryArrayElement<E> {
     private E value;
     private int capacity;
 
+    public BinaryArrayElement(boolean isActive, E value, int capacity) {
+        this.isActive = isActive;
+        this.value = value;
+        this.capacity = capacity;
+    }
+
     public boolean isActive() {
         return isActive;
     }
