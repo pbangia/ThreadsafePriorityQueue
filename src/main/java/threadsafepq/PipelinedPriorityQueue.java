@@ -48,6 +48,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.comparator = comparator;
     }
 
+    private BinaryArrayElement getRoot() {
+        return binaryArray[0];
+    }
+
+    private BinaryArrayElement getLeft(int index) {
+        int leftIndex = index * 2 + 1;
+        if (leftIndex >= binaryArray.length) {
+            return null;
+        }
+        return binaryArray[index * 2 + 1];
+    }
+
+    private BinaryArrayElement getRight(int index) {
+        int rightIndex = index * 2 + 2;
+        if (rightIndex >= binaryArray.length) {
+            return null;
+        }
+        return binaryArray[index * 2 + 2];
+    }
+
     public boolean offer(E e) {
         return false;
     }
