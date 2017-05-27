@@ -1,5 +1,8 @@
 package threadsafepq;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
@@ -243,5 +246,29 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     public Iterator<E> iterator() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PipelinedPriorityQueue<?> that = (PipelinedPriorityQueue<?>) o;
+
+        return new EqualsBuilder()
+                .append(binaryArray, that.binaryArray)
+                .append(tokenArray, that.tokenArray)
+                .append(comparator, that.comparator)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(binaryArray)
+                .append(tokenArray)
+                .append(comparator)
+                .toHashCode();
     }
 }
