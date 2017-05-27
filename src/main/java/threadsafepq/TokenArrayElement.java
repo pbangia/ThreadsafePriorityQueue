@@ -49,6 +49,11 @@ public class TokenArrayElement<E> {
         this.position = position;
     }
 
+    public boolean isGreaterThan(E o) {
+        // TODO implement using natural ordering or comparator
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

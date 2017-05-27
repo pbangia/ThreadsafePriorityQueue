@@ -73,4 +73,8 @@ public class BinaryArrayElement<E> {
                 ", capacity=" + capacity +
                 '}';
     }
+
+    public void decrementCapacity() {
+        this.capacity--;
+    }
 }

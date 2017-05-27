@@ -18,8 +18,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
 
-    private BinaryArrayElement[] binaryArray;
-    private TokenArrayElement[] tokenArray;
+    private BinaryArrayElement<E>[] binaryArray;
+    private TokenArrayElement<E>[] tokenArray;
     private Comparator<? super E> comparator;
 
     public PipelinedPriorityQueue() {
@@ -81,7 +81,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             initBinaryArrayElement(rightChildIndex);
         }
 
-        int capacity = 0;
+        int capacity = 1;
 
         BinaryArrayElement<E> leftChild = getLeft(i);
         if (leftChild != null) {
@@ -104,11 +104,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
     }
 
-    private BinaryArrayElement getRoot() {
+    private BinaryArrayElement<E> getRoot() {
         return binaryArray[0];
     }
 
-    private BinaryArrayElement getLeft(int index) {
+    private BinaryArrayElement<E> getLeft(int index) {
         int leftIndex = index * 2 + 1;
         if (leftIndex >= binaryArray.length) {
             return null;
@@ -116,7 +116,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return binaryArray[index * 2 + 1];
     }
 
-    private BinaryArrayElement getRight(int index) {
+    private BinaryArrayElement<E> getRight(int index) {
         int rightIndex = index * 2 + 2;
         if (rightIndex >= binaryArray.length) {
             return null;
@@ -153,9 +153,43 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public void put(E e) throws InterruptedException {
-        checkCapacity();
-        //TODO:
+        tokenArray[0].setValue(e);
+        tokenArray[0].setPosition(0);
 
+        int level = 0;
+        boolean done = false;
+        while (level < tokenArray.length && !done) {
+            done = localEnqueue(level);
+            level++;
+        }
+
+        if (level == tokenArray.length) {
+            // TODO double the arrays as no space
+            return;
+        }
+    }
+
+    private boolean localEnqueue(int i) {
+        int position = tokenArray[i].getPosition();
+        E value = (E) tokenArray[i].getValue();
+        if (!binaryArray[position].isActive()) {
+            binaryArray[position].setValue(value);
+            binaryArray[position].setActive(true);
+            binaryArray[position].decrementCapacity();
+            return true;
+        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
+            E temp = value;
+            tokenArray[i].setValue(binaryArray[i].getValue());
+            binaryArray[i].setValue(value);
+            tokenArray[i + 1].setValue(tokenArray[i].getValue());
+            tokenArray[i].setValue(null);
+        }
+        if (getLeft(position).getCapacity() > 0) {
+            tokenArray[i + 1].setPosition(getLeftIndex(position));
+        } else {
+            tokenArray[i + 1].setPosition(getRightIndex(position));
+        }
+        return false;
     }
 
     private void checkCapacity() {
