@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
+    private static final long serialVersionUID = 42L;
+
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
 
