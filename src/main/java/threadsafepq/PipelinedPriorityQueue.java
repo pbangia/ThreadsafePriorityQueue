@@ -289,7 +289,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean isEmpty() {
-        return false;
+        return (size==0);
     }
 
     public boolean contains(Object o) {
