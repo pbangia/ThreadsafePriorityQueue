@@ -336,6 +336,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean addAll(Collection<? extends E> c) {
+        for (E e:c){
+            boolean added = false;
+            while (!added) {
+                try {
+                    put(e);
+                    added = true;
+                } catch (InterruptedException ex) {}
+            }
+        }
         return false;
     }
 
@@ -348,7 +357,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public void clear() {
-
+        initBinaryArray();
+        initTokenArray();
     }
 
     public Iterator<E> iterator() {
