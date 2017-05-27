@@ -89,10 +89,29 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public void put(E e) throws InterruptedException {
+        checkCapacity();
+        //TODO:
 
     }
 
+    private void checkCapacity() {
+        if (getRoot().getCapacity()<1){
+            int newSize = binaryArray.length * 2;
+            BinaryArrayElement[] temp = new BinaryArrayElement[newSize];
+
+            int elementPos = 1;
+            for (BinaryArrayElement e: binaryArray){
+                e.setCapacity(e.getCapacity()*2); //needs fixing
+                temp[elementPos] = e;
+                elementPos++;
+            }
+
+            binaryArray = temp;
+        }
+    }
+
     public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+        checkCapacity();
         return false;
     }
 
