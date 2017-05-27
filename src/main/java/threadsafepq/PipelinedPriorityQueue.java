@@ -51,10 +51,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
         initInternalArrays();
-
-        for (BinaryArrayElement element : binaryArray) {
-            S
-        }
     }
 
     private void initInternalArrays() {
