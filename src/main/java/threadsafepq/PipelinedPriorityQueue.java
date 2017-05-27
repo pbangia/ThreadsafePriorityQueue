@@ -55,6 +55,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
         initInternalArrays();
+        for (int i = 0; i < capacity; i++) {
+            System.out.println(binaryArray[i].getCapacity());
+        }
     }
 
     private void initInternalArrays() {
@@ -80,12 +83,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         BinaryArrayElement<E> leftChild = getLeft(i);
         if (leftChild != null) {
-            capacity += leftChild.getCapacity() + 1;
+            capacity += leftChild.getCapacity();
         }
 
         BinaryArrayElement<E> rightChild = getRight(i);
         if (rightChild != null) {
-            capacity += rightChild.getCapacity() + 1;
+            capacity += rightChild.getCapacity();
         }
 
         BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity);
@@ -229,7 +232,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
             E temp = value;
             tokenArray[i].setValue(binaryArray[i].getValue());
-            binaryArray[i].setValue(value);
+            binaryArray[i].setValue(temp);
             tokenArray[i + 1].setValue(tokenArray[i].getValue());
             tokenArray[i].setValue(null);
         }
