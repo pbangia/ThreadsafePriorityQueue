@@ -42,6 +42,11 @@ public class BinaryArrayElement<E> {
         this.capacity = capacity;
     }
 
+    public boolean isGreaterThan(E o) {
+        // TODO implement using natural ordering or comparator
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -76,5 +81,9 @@ public class BinaryArrayElement<E> {
 
     public void decrementCapacity() {
         this.capacity--;
+    }
+
+    public void incrementCapacity() {
+        this.capacity++;
     }
 }

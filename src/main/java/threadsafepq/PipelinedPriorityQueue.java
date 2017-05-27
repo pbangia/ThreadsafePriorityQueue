@@ -131,7 +131,54 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public E remove() {
-        return null;
+        E value = binaryArray[0].getValue();
+        binaryArray[0].setActive(false);
+        binaryArray[0].incrementCapacity();
+        tokenArray[0].setPosition(0);
+
+        int level = 0;
+        boolean done = false;
+        while (level < tokenArray.length && !done) {
+            done = localDequeue(level);
+            level++;
+            if (level == tokenArray.length) {
+                // TODO double the arrays as no space
+                return null;
+            }
+        }
+
+        return value;
+    }
+
+    private boolean localDequeue(int i) {
+        int current = tokenArray[i].getPosition();
+        if ((getLeft(current) == null || !getLeft(current).isActive())
+                && (getRight(current) == null || !getRight(current).isActive())) {
+            return true;
+        }
+
+        BinaryArrayElement<E> leftChild = getLeft(current);
+        BinaryArrayElement<E> rightChild = getRight(current);
+        BinaryArrayElement<E> greatestChild;
+        int greatestChildPosition;
+
+        if (leftChild == null) {
+            greatestChild = rightChild;
+            greatestChildPosition = getRightIndex(current);
+        } else if (rightChild == null || leftChild.isGreaterThan(rightChild.getValue())) {
+            greatestChild = leftChild;
+            greatestChildPosition = getLeftIndex(current);
+        } else {
+            greatestChild = rightChild;
+            greatestChildPosition = getRightIndex(current);
+        }
+
+        binaryArray[current].setActive(true);
+        binaryArray[current].setValue(greatestChild.getValue());
+        greatestChild.setActive(false);
+        greatestChild.incrementCapacity();
+        tokenArray[i + 1].setPosition(greatestChildPosition);
+        return false;
     }
 
     public E poll() {
@@ -155,11 +202,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         while (level < tokenArray.length && !done) {
             done = localEnqueue(level);
             level++;
-        }
-
-        if (level == tokenArray.length) {
-            // TODO double the arrays as no space
-            return;
+            if (level == tokenArray.length) {
+                // TODO double the arrays as no space
+                return;
+            }
         }
     }
 
@@ -203,7 +249,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-        checkCapacity();
         return false;
     }
 
