@@ -51,6 +51,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
         initInternalArrays();
+
+        for (BinaryArrayElement element : binaryArray) {
+            S
+        }
     }
 
     private void initInternalArrays() {
@@ -68,6 +72,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @param i index of element to be initialised
      */
     private void traverse(int i) {
+        if (i >= binaryArray.length) return;
+
         int leftChildIndex = getLeftIndex(i);
         if (leftChildIndex <= binaryArray.length) {
             traverse(leftChildIndex);
