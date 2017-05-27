@@ -72,16 +72,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     private void initBinaryArrayElement(int i) {
         if (i >= binaryArray.length) return;
-
-        int leftChildIndex = getLeftIndex(i);
-        if (leftChildIndex <= binaryArray.length) {
-            initBinaryArrayElement(leftChildIndex);
-        }
-
-        int rightChildIndex = getRightIndex(i);
-        if (rightChildIndex <= binaryArray.length) {
-            initBinaryArrayElement(rightChildIndex);
-        }
+        initBinaryArrayElement(getLeftIndex(i));
+        initBinaryArrayElement(getRightIndex(i));
 
         int capacity = 1;
 
