@@ -50,8 +50,9 @@ public class TokenArrayElement<E> {
     }
 
     public boolean isGreaterThan(E o) {
-        // TODO implement using natural ordering or comparator
-        return false;
+        int result = ((Comparable<? super E>) o).compareTo(this.value);
+        boolean rb = (result > 0);
+        return rb;
     }
 
     @Override
