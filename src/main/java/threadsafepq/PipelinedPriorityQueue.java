@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -296,7 +297,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public boolean contains(Object o) {
 
         for (BinaryArrayElement e: binaryArray){
-            if (e.getValue() == null) return false;
+            if (e.getValue() == null) continue;
             if (e.getValue().equals(o)) return true;
         }
         return false;
@@ -323,7 +324,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean containsAll(Collection<?> c) {
-        return false;
+        if (c.size()>size) return false;
+
+        HashSet set1 = new HashSet(c);
+        int count = 0;
+        for (BinaryArrayElement e: binaryArray){
+            if (e.getValue()==null) continue;
+            if (set1.contains(e.getValue())) count++;
+        }
+        return set1.size()==count;
     }
 
     public boolean addAll(Collection<? extends E> c) {
