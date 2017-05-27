@@ -4,10 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -363,7 +360,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public Iterator<E> iterator() {
-        return null;
+
+        return new Iterator<E>() {
+            public boolean hasNext() {
+                return peek()!=null;
+            }
+
+            public E next() {
+                if (peek()==null) throw new NoSuchElementException();
+                boolean taken = false;
+                E e = null;
+                while (!taken){
+                    try {
+                        e = take();
+                    } catch (InterruptedException ex) {}
+                }
+                return e;
+            }
+
+            public void remove() {}
+        };
     }
 
     @Override
