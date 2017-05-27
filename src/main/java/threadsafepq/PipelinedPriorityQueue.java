@@ -20,32 +20,71 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private Comparator<? super E> comparator;
 
     public PipelinedPriorityQueue() {
-        this.binaryArray = new BinaryArrayElement[DEFAULT_CAPACITY_NUM_ELEMENTS];
-        this.tokenArray = new TokenArrayElement[DEFAULT_CAPACITY_NUM_LEVELS];
+        init(DEFAULT_CAPACITY_NUM_ELEMENTS, DEFAULT_CAPACITY_NUM_LEVELS, null);
     }
 
     public PipelinedPriorityQueue(Collection<? extends E> c) {
         if (c == null) throw new IllegalArgumentException("Input collection cannot be null");
-        int size = c.size();
-        int levels = BinaryTreeUtils.convertSizeToNumLevels(size);
-        this.binaryArray = new BinaryArrayElement[size];
-        this.tokenArray = new TokenArrayElement[levels];
+        int capacity = c.size();
+        int levels = BinaryTreeUtils.convertSizeToNumLevels(capacity);
+        init(capacity, levels, null);
     }
 
     public PipelinedPriorityQueue(int initialCapacity) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
         int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
-        this.binaryArray = new BinaryArrayElement[initialCapacity];
-        this.tokenArray = new TokenArrayElement[levels];
+        init(initialCapacity, levels, null);
     }
 
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
         if (comparator == null) throw new IllegalArgumentException("Input comparator cannot be null");
         int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
-        this.binaryArray = new BinaryArrayElement[initialCapacity];
+        init(initialCapacity, levels, comparator);
+    }
+
+    private void init(int capacity, int levels, Comparator<? super E> comparator) {
+        this.binaryArray = new BinaryArrayElement[capacity];
         this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
+        initInternalArrays();
+    }
+
+    private void initInternalArrays() {
+        initBinaryArray();
+        initTokenArray();
+    }
+
+    private void initBinaryArray() {
+        traverse(0);
+    }
+
+    /**
+     * Recursive post-order traversal to initialise elements in the binary array
+     *
+     * @param i index of element to be initialised
+     */
+    private void traverse(int i) {
+        int leftChildIndex = getLeftIndex(i);
+        if (leftChildIndex <= binaryArray.length) {
+            traverse(leftChildIndex);
+        }
+
+        int rightChildIndex = getRightIndex(i);
+        if (rightChildIndex <= binaryArray.length) {
+            traverse(rightChildIndex);
+        }
+
+        int capacity = getLeft(i).getCapacity() + getRight(i).getCapacity() + 2;
+        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity);
+        binaryArray[i] = element;
+    }
+
+    private void initTokenArray() {
+        for (int i = 0; i < tokenArray.length; i++) {
+            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, -1);
+            tokenArray[i] = element;
+        }
     }
 
     private BinaryArrayElement getRoot() {
@@ -66,6 +105,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             return null;
         }
         return binaryArray[index * 2 + 2];
+    }
+
+    private int getLeftIndex(int index) {
+        return index * 2 + 1;
+    }
+
+    private int getRightIndex(int index) {
+        return index * 2 + 2;
     }
 
     public boolean offer(E e) {

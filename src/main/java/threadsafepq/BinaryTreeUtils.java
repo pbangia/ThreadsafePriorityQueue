@@ -13,4 +13,9 @@ public class BinaryTreeUtils {
         return (int) (Math.pow(2, levels) - 1);
     }
 
+    public static int findLevel(int index) {
+        if (index <= 0) return 1;
+        return (int) (Math.log(index) / Math.log(2) + 1);
+    }
+
 }
