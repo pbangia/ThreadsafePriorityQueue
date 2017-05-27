@@ -23,6 +23,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private BinaryArrayElement<E>[] binaryArray;
     private TokenArrayElement<E>[] tokenArray;
     private Comparator<? super E> comparator;
+    private int size = 0;
 
     public PipelinedPriorityQueue() {
         init(DEFAULT_CAPACITY_NUM_ELEMENTS, DEFAULT_CAPACITY_NUM_LEVELS, null);
@@ -131,6 +132,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public E remove() {
+        if (size == 0) {
+            // TODO block thread
+            return null;
+        }
+
         E value = binaryArray[0].getValue();
         binaryArray[0].setActive(false);
         binaryArray[0].incrementCapacity();
@@ -147,6 +153,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             }
         }
 
+        size--;
         return value;
     }
 
@@ -207,6 +214,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
                 return;
             }
         }
+
+        size++;
     }
 
     private boolean localEnqueue(int i) {
@@ -273,7 +282,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public int size() {
-        return 0;
+        return size;
     }
 
     public boolean isEmpty() {
@@ -284,8 +293,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
-    public Object[] toArray() {
-        return new Object[0];
+    public synchronized Object[] toArray() {
+        Object[] result = new Object[size];
+        for (int i = 0; i < size; i++) {
+            result[i] = binaryArray[i].getValue();
+        }
+        return result;
     }
 
     public <T> T[] toArray(T[] a) {
