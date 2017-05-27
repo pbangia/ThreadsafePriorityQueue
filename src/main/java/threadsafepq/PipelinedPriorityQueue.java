@@ -60,7 +60,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     private void initBinaryArray() {
-        traverse(0);
+        initBinaryArrayElement(0);
     }
 
     /**
@@ -68,17 +68,17 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param i index of element to be initialised
      */
-    private void traverse(int i) {
+    private void initBinaryArrayElement(int i) {
         if (i >= binaryArray.length) return;
 
         int leftChildIndex = getLeftIndex(i);
         if (leftChildIndex <= binaryArray.length) {
-            traverse(leftChildIndex);
+            initBinaryArrayElement(leftChildIndex);
         }
 
         int rightChildIndex = getRightIndex(i);
         if (rightChildIndex <= binaryArray.length) {
-            traverse(rightChildIndex);
+            initBinaryArrayElement(rightChildIndex);
         }
 
         int capacity = 0;
