@@ -31,6 +31,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         int capacity = c.size();
         int levels = BinaryTreeUtils.convertSizeToNumLevels(capacity);
         init(capacity, levels, null);
+        addAll(c);
     }
 
     public PipelinedPriorityQueue(int initialCapacity) {
