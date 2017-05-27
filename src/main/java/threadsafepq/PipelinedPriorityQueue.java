@@ -293,6 +293,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean contains(Object o) {
+
+        for (BinaryArrayElement e: binaryArray){
+            if (e.getValue() == null) return false;
+            if (e.getValue().equals(o)) return true;
+        }
         return false;
     }
 
