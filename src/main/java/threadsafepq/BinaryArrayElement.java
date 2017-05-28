@@ -3,10 +3,12 @@ package threadsafepq;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.io.Serializable;
+
 /**
  * Created by Taranpreet on 26/05/2017.
  */
-public class BinaryArrayElement<E> {
+public class BinaryArrayElement<E> implements Serializable {
 
     private boolean isActive;
     private E value;
