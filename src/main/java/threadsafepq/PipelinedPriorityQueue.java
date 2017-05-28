@@ -206,14 +206,19 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         tokenArray[0].setPosition(0);
 
         int level = 0;
-        boolean done = false;
-        while (level < tokenArray.length && !done) {
-            done = localEnqueue(level);
-            level++;
-            if (level == tokenArray.length) {
-                // TODO double the arrays as no space
-                return;
+        boolean success = false;
+        while (level < tokenArray.length) {
+            boolean result = localEnqueue(level);
+            if (result) {
+                success = true;
+                break;
+            } else {
+                level++;
             }
+        }
+
+        if (!success) {
+            // TODO double array because no space
         }
 
         size++;
@@ -221,19 +226,20 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private boolean localEnqueue(int i) {
         int position = tokenArray[i].getPosition();
-        E value = (E) tokenArray[i].getValue();
+        E value = tokenArray[i].getValue();
         if (!binaryArray[position].isActive()) {
             binaryArray[position].setValue(value);
             binaryArray[position].setActive(true);
             binaryArray[position].decrementCapacity();
             return true;
         } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
-            E temp = value;
-            tokenArray[i].setValue(binaryArray[i].getValue());
-            binaryArray[i].setValue(temp);
-            tokenArray[i + 1].setValue(tokenArray[i].getValue());
-            tokenArray[i].setValue(null);
+            E temp = tokenArray[i].getValue();
+            tokenArray[i].setValue(binaryArray[position].getValue());
+            binaryArray[position].setValue(temp);
         }
+
+        tokenArray[i + 1].setValue(tokenArray[i].getValue());
+        tokenArray[i].setValue(null);
         if (getLeft(position).getCapacity() > 0) {
             tokenArray[i + 1].setPosition(getLeftIndex(position));
         } else {
@@ -302,9 +308,20 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     public synchronized Object[] toArray() {
         Object[] result = new Object[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = binaryArray[i].getValue();
+        int taken = 0;
+        int runner = 0;
+        while (taken < size && runner < binaryArray.length) {
+            if (binaryArray[runner].getValue() != null) {
+                result[taken] = binaryArray[runner].getValue();
+                taken++;
+            }
+            runner++;
         }
+
+        if (taken != size) {
+            // TODO something went wrong
+        }
+
         return result;
     }
 

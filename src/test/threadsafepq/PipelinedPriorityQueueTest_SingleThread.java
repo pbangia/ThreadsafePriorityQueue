@@ -38,9 +38,11 @@ public class PipelinedPriorityQueueTest_SingleThread {
 
         Object[] queueArray = queue.toArray();
         assertEquals(5, queueArray.length);
-        for (int i = 0; i < 5; i++) {
-            assertEquals(i, (int) (Integer) queueArray[i]);
-        }
+        assertEquals(0, queueArray[0]);
+        assertEquals(1, queueArray[1]);
+        assertEquals(2, queueArray[2]);
+        assertEquals(3, queueArray[3]);
+        assertEquals(5, queueArray[4]);
     }
 
     @Test
