@@ -218,7 +218,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         if (!success) {
-            // TODO double array because no space
+            resize();
+            put(e);
         }
 
         size++;
@@ -398,6 +399,29 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
             public void remove() {}
         };
+    }
+
+    /**
+     * Increases the capacity of the array.
+     */
+    private void resize() {
+        int oldCapacity = binaryArray.length;
+        // Double size if small; else grow by 50%
+        int newCapacity = ((oldCapacity < 64) ?
+                ((oldCapacity + 1) * 2) :
+                ((oldCapacity / 2) * 3));
+        if (newCapacity < 0) // overflow
+            newCapacity = Integer.MAX_VALUE;
+
+        BinaryArrayElement<E>[] oldBinaryArray = binaryArray;
+        binaryArray = new BinaryArrayElement[newCapacity];
+        initBinaryArray();
+        for (int i = 0; i < oldCapacity; i++) {
+            binaryArray[i] = oldBinaryArray[i];
+        }
+
+        tokenArray = new TokenArrayElement[BinaryTreeUtils.convertSizeToNumLevels(newCapacity)];
+        initTokenArray();
     }
 
     @Override
