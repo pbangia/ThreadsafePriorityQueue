@@ -129,7 +129,23 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public boolean offer(E e) {
-        return false;
+        tokenArray[0].setValue(e);
+        tokenArray[0].setPosition(0);
+
+        int level = 0;
+        boolean success = false;
+        while (level < tokenArray.length) {
+            boolean result = localEnqueue(level);
+            if (result) {
+                size++;
+                success = true;
+                break;
+            } else {
+                level++;
+            }
+        }
+
+        return success;
     }
 
     public E remove() {
