@@ -65,6 +65,32 @@ public class PipelinedPriorityQueueTest_SingleThread {
         }
     }
 
+    @Test
+    public void Remove_SingleItem_CorrectlyDequeuesItem() throws InterruptedException {
+        queue.put(1);
+        int result = queue.remove();
+
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void Remove_SingleItem2_CorrectlyDequeuesItem() throws InterruptedException {
+        queue.put(1);
+        queue.put(0);
+        int result = queue.remove();
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void Remove_SingleItem3_CorrectlyDequeuesItem() throws InterruptedException {
+        queue.put(0);
+        queue.put(1);
+        int result = queue.remove();
+
+        assertEquals(0, result);
+    }
+
     private void shuffleArray(int[] array) {
         int index;
         Random random = new Random();
