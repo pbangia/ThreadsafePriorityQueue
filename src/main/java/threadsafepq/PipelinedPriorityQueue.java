@@ -277,8 +277,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public int remainingCapacity() {
-
-        return (size>0) ? getRoot().getCapacity() : 0;
+        return size == 0
+                ? getRoot().getCapacity() + 1
+                : getRoot().getCapacity();
     }
 
     public int drainTo(Collection<? super E> c) {
