@@ -8,9 +8,6 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Taranpreet on 26/05/2017.
- */
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
     private static final long serialVersionUID = 42L;
