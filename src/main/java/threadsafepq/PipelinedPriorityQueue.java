@@ -578,13 +578,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private boolean localDequeue(int i) {
         int current = tokenArray[i].getPosition();
-        if ((getLeft(current) == null || !getLeft(current).isActive())
-                && (getRight(current) == null || !getRight(current).isActive())) {
+        BinaryArrayElement<E> leftChild = getLeft(current);
+        BinaryArrayElement<E> rightChild = getRight(current);
+
+        if ((leftChild == null || !leftChild.isActive())
+                && (rightChild == null || !rightChild.isActive())) {
             return true;
         }
 
-        BinaryArrayElement<E> leftChild = getLeft(current);
-        BinaryArrayElement<E> rightChild = getRight(current);
         BinaryArrayElement<E> greatestChild;
         int greatestChildPosition;
 
