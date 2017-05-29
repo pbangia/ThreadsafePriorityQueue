@@ -118,17 +118,30 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
     }
 
+    /**
+     * Inserts the specified element into this priority queue.
+     * As the queue is unbounded, this method will never return false.
+     *
+     * @param e -  the element to add
+     * @return true
+     * @throws ClassCastException   - if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
+     * @throws NullPointerException - if the specified element is null
+     */
     public boolean add(E e) {
-        // TODO this needs fixing
-        boolean added = false;
-        while (!added) {
-            put(e);
-            added = true;
-        }
-        return false;
+        return offer(e);
     }
 
+    /**
+     * Inserts the specified element into this priority queue.
+     * As the queue is unbounded, this method will never return false.
+     * @param e -  the element to add
+     * @return true
+     * @throws ClassCastException - if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
+     * @throws NullPointerException - if the specified element is null
+     */
     public boolean offer(E e) {
+        if (e == null) throw new NullPointerException("Specified element is null");
+
         tokenArray[0].setValue(e);
         tokenArray[0].setPosition(0);
 
@@ -145,43 +158,87 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             }
         }
 
+        // TODO if not success then resize
+
         return success;
     }
 
-    public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-        return false;
+    /**
+     * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block or return false.
+     *
+     * @param e       - the element to add
+     * @param timeout - This parameter is ignored as the method never blocks
+     * @param unit    - This parameter is ignored as the method never blocks
+     * @return true
+     * @throws InterruptedException
+     */
+    public boolean offer(E e, long timeout, TimeUnit unit) {
+        return offer(e);
     }
 
+    /**
+     * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block.
+     * @param e - the element to add
+     */
     public void put(E e) {
-
-        boolean success = offer(e);
-
-        if (!success) {
-            resize();
-            put(e);
-        }
+        offer(e);
     }
 
+    /**
+     * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
+     * @return the head of this queue, or null if this queue is empty
+     */
     public E peek() {
         return null;
     }
 
+    /**
+     * Retrieves, but does not remove, the head of this queue.
+     * This method differs from peek only in that it throws an exception if this queue is empty.
+     * @return - the head of this queue
+     * @throws NoSuchElementException - if this queue is empty
+     */
     public E element() {
-        return null;
+        if (size == 0) {
+            throw new NoSuchElementException("Queue is empty");
+        }
+        return peek();
     }
 
+    /**
+     * Retrieves and removes the head of this queue, or returns null if this queue is empty.
+     * @return the head of this queue, or null if this queue is empty
+     */
     public E poll() {
-        return null;
+        return peek();
     }
 
+    /**
+     * Retrieves and removes the head of this queue, waiting if necessary until an element becomes available.
+     * @return the head of this queue
+     * @throws InterruptedException - if interrupted while waiting
+     */
     public E take() throws InterruptedException {
         return null;
     }
 
+    /**
+     * Retrieves and removes the head of this queue,
+     * waiting up to the specified wait time if necessary for an element to become available.
+     * @param timeout - how long to wait before giving up, in units of unit
+     * @param unit - a TimeUnit determining how to interpret the timeout parameter
+     * @return the head of this queue, or null if the specified waiting time elapses before an element is available
+     * @throws InterruptedException - if interrupted while waiting
+     */
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         return null;
     }
 
+    /**
+     * Retrieves and removes the head of this queue.
+     * This method differs from poll only in that it throws an exception if this queue is empty.
+     * @return the head of this queue
+     */
     public E remove() {
         if (size == 0) {
             // TODO block thread
