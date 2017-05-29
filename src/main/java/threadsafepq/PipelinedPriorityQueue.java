@@ -164,8 +164,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
                 level++;
             }
         }
-
-        // TODO if not success then resize
+        if (!success) {
+            resize();
+            offer(e);
+        }
 
         return success;
     }
