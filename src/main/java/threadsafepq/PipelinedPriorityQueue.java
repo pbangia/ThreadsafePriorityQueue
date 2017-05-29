@@ -221,7 +221,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E poll() {
-        return peek();
+        return null; // TODO
     }
 
     /**
@@ -261,6 +261,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue
      */
     public E remove() {
+        // TODO move this logic to poll()
         if (size.get() == 0) {
             // TODO block thread
             return null;
