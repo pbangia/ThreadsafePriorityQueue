@@ -223,7 +223,23 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E poll() {
-        return null; // TODO
+        E value = binaryArray[0].getValue();
+        binaryArray[0].setActive(false);
+        binaryArray[0].incrementCapacity();
+        tokenArray[0].setPosition(0);
+
+        int level = 0;
+        boolean done = false;
+        while (level < tokenArray.length && !done) {
+            done = localDequeue(level);
+            level++;
+            if (level == tokenArray.length) {
+                resize();
+            }
+        }
+
+        size.decrementAndGet();
+        return value;
     }
 
     /**
@@ -263,30 +279,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue
      */
     public E remove() {
-        // TODO move this logic to poll()
-        if (size.get() == 0) {
-            // TODO block thread
+        if (size.get() != 0) {
+            return poll();
+        } else {
+            // TODO wait
             return null;
         }
-
-        E value = binaryArray[0].getValue();
-        binaryArray[0].setActive(false);
-        binaryArray[0].incrementCapacity();
-        tokenArray[0].setPosition(0);
-
-        int level = 0;
-        boolean done = false;
-        while (level < tokenArray.length && !done) {
-            done = localDequeue(level);
-            level++;
-            if (level == tokenArray.length) {
-                // TODO double the arrays as no space
-                return null;
-            }
-        }
-
-        size.decrementAndGet();
-        return value;
     }
 
     /**
