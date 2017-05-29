@@ -23,10 +23,19 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private Comparator<? super E> comparator;
     private int size = 0;
 
+    /**
+     * Creates a PriorityBlockingQueue with the default initial capacity (11)
+     * that orders its elements according to their natural ordering.
+     */
     public PipelinedPriorityQueue() {
         init(DEFAULT_CAPACITY_NUM_ELEMENTS, DEFAULT_CAPACITY_NUM_LEVELS, null);
     }
 
+    /**
+     * Creates a PriorityBlockingQueue containing the elements in the specified collection.
+     *
+     * @param c - the collection whose elements are to be placed into this priority queue
+     */
     public PipelinedPriorityQueue(Collection<? extends E> c) {
         if (c == null) throw new IllegalArgumentException("Input collection cannot be null");
         int capacity = c.size();
@@ -35,15 +44,27 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         addAll(c);
     }
 
+    /**
+     * Creates a PriorityBlockingQueue with the specified initial capacity that orders
+     * its elements according to their natural ordering.
+     * @param initialCapacity - the initial capacity for this priority queue
+     *
+     * @throws IllegalArgumentException - if initialCapacity is less than 1
+     */
     public PipelinedPriorityQueue(int initialCapacity) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
         int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
         init(initialCapacity, levels, null);
     }
 
+    /**
+     * Creates a PriorityBlockingQueue with the specified initial capacity that orders
+     * its elements according to the specified comparator.
+     * @param initialCapacity - the initial capacity for this priority queue
+     * @param comparator  - the comparator that will be used to order this priority queue. If null, the natural ordering of the elements will be used.
+     */
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
-        if (comparator == null) throw new IllegalArgumentException("Input comparator cannot be null");
         int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
         init(initialCapacity, levels, comparator);
     }
@@ -100,32 +121,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
     }
 
-    private BinaryArrayElement<E> getRoot() {
-        return binaryArray[0];
-    }
-
-    private BinaryArrayElement<E> getLeft(int index) {
-        int leftIndex = index * 2 + 1;
-        if (leftIndex >= binaryArray.length) {
-            return null;
+    public boolean add(E e) {
+        // TODO this needs fixing
+        boolean added = false;
+        while (!added) {
+            put(e);
+            added = true;
         }
-        return binaryArray[index * 2 + 1];
-    }
-
-    private BinaryArrayElement<E> getRight(int index) {
-        int rightIndex = index * 2 + 2;
-        if (rightIndex >= binaryArray.length) {
-            return null;
-        }
-        return binaryArray[index * 2 + 2];
-    }
-
-    private int getLeftIndex(int index) {
-        return index * 2 + 1;
-    }
-
-    private int getRightIndex(int index) {
-        return index * 2 + 2;
+        return false;
     }
 
     public boolean offer(E e) {
@@ -146,6 +149,40 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         return success;
+    }
+
+    public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+        return false;
+    }
+
+    public void put(E e) {
+
+        boolean success = offer(e);
+
+        if (!success) {
+            resize();
+            put(e);
+        }
+    }
+
+    public E peek() {
+        return null;
+    }
+
+    public E element() {
+        return null;
+    }
+
+    public E poll() {
+        return null;
+    }
+
+    public E take() throws InterruptedException {
+        return null;
+    }
+
+    public E poll(long timeout, TimeUnit unit) throws InterruptedException {
+        return null;
     }
 
     public E remove() {
@@ -172,6 +209,145 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         size--;
         return value;
+    }
+
+    public boolean remove(Object o) {
+        return false;
+    }
+
+    public boolean isEmpty() {
+        return (size == 0);
+    }
+
+    public int size() {
+        return size;
+    }
+
+    public int remainingCapacity() {
+        return size == 0
+                ? getRoot().getCapacity() + 1
+                : getRoot().getCapacity();
+    }
+
+    public void clear() {
+        initBinaryArray();
+        initTokenArray();
+    }
+
+    public int drainTo(Collection<? super E> c) {
+        return 0;
+    }
+
+    public int drainTo(Collection<? super E> c, int maxElements) {
+        return 0;
+    }
+
+    public synchronized Object[] toArray() {
+        Object[] result = new Object[size];
+        int taken = 0;
+        int runner = 0;
+        while (taken < size && runner < binaryArray.length) {
+            if (binaryArray[runner].getValue() != null) {
+                result[taken] = binaryArray[runner].getValue();
+                taken++;
+            }
+            runner++;
+        }
+
+        if (taken != size) {
+            // TODO something went wrong
+        }
+
+        return result;
+    }
+
+    public <T> T[] toArray(T[] a) {
+        return null;
+    }
+
+    public Iterator<E> iterator() {
+
+        return new Iterator<E>() {
+            public boolean hasNext() {
+                return peek() != null;
+            }
+
+            public E next() {
+                if (peek() == null) throw new NoSuchElementException();
+                boolean taken = false;
+                E e = null;
+                while (!taken) {
+                    try {
+                        e = take();
+                    } catch (InterruptedException ex) {
+                    }
+                }
+                return e;
+            }
+
+            public void remove() {
+            }
+        };
+    }
+
+    public boolean contains(Object o) {
+
+        for (BinaryArrayElement e : binaryArray) {
+            if (e.getValue() == null) continue;
+            if (e.getValue().equals(o)) return true;
+        }
+        return false;
+    }
+
+    public boolean containsAll(Collection<?> c) {
+        if (c.size() > size) return false;
+
+        HashSet set1 = new HashSet(c);
+        int count = 0;
+        for (BinaryArrayElement e : binaryArray) {
+            if (e.getValue() == null) continue;
+            if (set1.contains(e.getValue())) count++;
+        }
+        return set1.size() == count;
+    }
+
+    public boolean addAll(Collection<? extends E> c) {
+        for (E e : c) {
+            add(e);
+        }
+        return false;
+    }
+
+    public boolean removeAll(Collection<?> c) {
+        return false;
+    }
+
+    public boolean retainAll(Collection<?> c) {
+        return false;
+    }
+
+    private boolean localEnqueue(int i) {
+        int position = tokenArray[i].getPosition();
+        E value = tokenArray[i].getValue();
+        if (!binaryArray[position].isActive()) {
+            binaryArray[position].setValue(value);
+            binaryArray[position].setActive(true);
+            binaryArray[position].decrementCapacity();
+            return true;
+        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
+            E temp = tokenArray[i].getValue();
+            tokenArray[i].setValue(binaryArray[position].getValue());
+            binaryArray[position].setValue(temp);
+        }
+
+        tokenArray[i + 1].setValue(tokenArray[i].getValue());
+        tokenArray[i].setValue(null);
+        if (getLeft(position).getCapacity() > 0) {
+            tokenArray[i + 1].setPosition(getLeftIndex(position));
+        } else {
+            tokenArray[i + 1].setPosition(getRightIndex(position));
+        }
+        return false;
     }
 
     private boolean localDequeue(int i) {
@@ -205,52 +381,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
-    public E poll() {
-        return null;
-    }
-
-    public E element() {
-        return null;
-    }
-
-    public E peek() {
-        return null;
-    }
-
-    public void put(E e) throws InterruptedException {
-
-        boolean success = offer(e);
-
-        if (!success) {
-            resize();
-            put(e);
-        }
-    }
-
-    private boolean localEnqueue(int i) {
-        int position = tokenArray[i].getPosition();
-        E value = tokenArray[i].getValue();
-        if (!binaryArray[position].isActive()) {
-            binaryArray[position].setValue(value);
-            binaryArray[position].setActive(true);
-            binaryArray[position].decrementCapacity();
-            return true;
-        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
-            E temp = tokenArray[i].getValue();
-            tokenArray[i].setValue(binaryArray[position].getValue());
-            binaryArray[position].setValue(temp);
-        }
-
-        tokenArray[i + 1].setValue(tokenArray[i].getValue());
-        tokenArray[i].setValue(null);
-        if (getLeft(position).getCapacity() > 0) {
-            tokenArray[i + 1].setPosition(getLeftIndex(position));
-        } else {
-            tokenArray[i + 1].setPosition(getRightIndex(position));
-        }
-        return false;
-    }
-
     private void checkCapacity() {
         if (getRoot().getCapacity()<1){
             int newSize = binaryArray.length * 2;
@@ -267,140 +397,32 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
     }
 
-    public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-        return false;
+    private BinaryArrayElement<E> getRoot() {
+        return binaryArray[0];
     }
 
-    public E take() throws InterruptedException {
-        return null;
-    }
-
-    public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
-    }
-
-    public int remainingCapacity() {
-        return size == 0
-                ? getRoot().getCapacity() + 1
-                : getRoot().getCapacity();
-    }
-
-    public int drainTo(Collection<? super E> c) {
-        return 0;
-    }
-
-    public int drainTo(Collection<? super E> c, int maxElements) {
-        return 0;
-    }
-
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-        return (size==0);
-    }
-
-    public boolean contains(Object o) {
-
-        for (BinaryArrayElement e: binaryArray){
-            if (e.getValue() == null) continue;
-            if (e.getValue().equals(o)) return true;
+    private BinaryArrayElement<E> getLeft(int index) {
+        int leftIndex = index * 2 + 1;
+        if (leftIndex >= binaryArray.length) {
+            return null;
         }
-        return false;
+        return binaryArray[index * 2 + 1];
     }
 
-    public synchronized Object[] toArray() {
-        Object[] result = new Object[size];
-        int taken = 0;
-        int runner = 0;
-        while (taken < size && runner < binaryArray.length) {
-            if (binaryArray[runner].getValue() != null) {
-                result[taken] = binaryArray[runner].getValue();
-                taken++;
-            }
-            runner++;
+    private BinaryArrayElement<E> getRight(int index) {
+        int rightIndex = index * 2 + 2;
+        if (rightIndex >= binaryArray.length) {
+            return null;
         }
-
-        if (taken != size) {
-            // TODO something went wrong
-        }
-
-        return result;
+        return binaryArray[index * 2 + 2];
     }
 
-    public <T> T[] toArray(T[] a) {
-        return null;
+    private int getLeftIndex(int index) {
+        return index * 2 + 1;
     }
 
-    public boolean add(E e) {
-        boolean added = false;
-        while (!added) {
-            try {
-                put(e);
-                added = true;
-            } catch (InterruptedException ex) {}
-        }
-        return false;
-    }
-
-    public boolean remove(Object o) {
-        return false;
-    }
-
-    public boolean containsAll(Collection<?> c) {
-        if (c.size()>size) return false;
-
-        HashSet set1 = new HashSet(c);
-        int count = 0;
-        for (BinaryArrayElement e: binaryArray){
-            if (e.getValue()==null) continue;
-            if (set1.contains(e.getValue())) count++;
-        }
-        return set1.size()==count;
-    }
-
-    public boolean addAll(Collection<? extends E> c) {
-        for (E e:c){
-            add(e);
-        }
-        return false;
-    }
-
-    public boolean removeAll(Collection<?> c) {
-        return false;
-    }
-
-    public boolean retainAll(Collection<?> c) {
-        return false;
-    }
-
-    public void clear() {
-        initBinaryArray();
-        initTokenArray();
-    }
-
-    public Iterator<E> iterator() {
-
-        return new Iterator<E>() {
-            public boolean hasNext() {
-                return peek()!=null;
-            }
-
-            public E next() {
-                if (peek()==null) throw new NoSuchElementException();
-                boolean taken = false;
-                E e = null;
-                while (!taken){
-                    try {
-                        e = take();
-                    } catch (InterruptedException ex) {}
-                }
-                return e;
-            }
-
-            public void remove() {}
-        };
+    private int getRightIndex(int index) {
+        return index * 2 + 2;
     }
 
     /**
@@ -448,5 +470,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
                 .append(tokenArray)
                 .append(comparator)
                 .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        // TODO
+        return null;
     }
 }
