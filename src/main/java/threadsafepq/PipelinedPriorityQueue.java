@@ -218,27 +218,13 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     public void put(E e) throws InterruptedException {
-        tokenArray[0].setValue(e);
-        tokenArray[0].setPosition(0);
 
-        int level = 0;
-        boolean success = false;
-        while (level < tokenArray.length) {
-            boolean result = localEnqueue(level);
-            if (result) {
-                success = true;
-                break;
-            } else {
-                level++;
-            }
-        }
+        boolean success = offer(e);
 
         if (!success) {
             resize();
             put(e);
         }
-
-        size++;
     }
 
     private boolean localEnqueue(int i) {

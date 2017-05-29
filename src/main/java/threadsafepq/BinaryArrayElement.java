@@ -10,6 +10,8 @@ import java.io.Serializable;
  */
 public class BinaryArrayElement<E> implements Serializable {
 
+    private static final long serialVersionUID = 43L;
+
     private boolean isActive;
     private E value;
     private int capacity;

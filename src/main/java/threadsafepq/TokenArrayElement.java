@@ -10,6 +10,8 @@ import java.io.Serializable;
  */
 public class TokenArrayElement<E> implements Serializable {
 
+    private static final long serialVersionUID = 44L;
+
     private Operation operation;
     private E value;
     private int position;
