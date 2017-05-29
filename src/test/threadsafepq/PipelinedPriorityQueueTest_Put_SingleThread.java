@@ -20,7 +20,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_EmptyQueue_CorrectlyEnqueuesItem() throws InterruptedException {
+    public void Put_DefaultEmptyQueue_CorrectEnqueue() throws InterruptedException {
         queue.put(1);
 
         Object[] queueArray = queue.toArray();
@@ -29,7 +29,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_MultipleTimes_CorrectlyEnqueuesItems() throws InterruptedException {
+    public void Put_DefaultQueueMultipleItems_CorrectEnqueues() throws InterruptedException {
         queue.put(1);
         queue.put(0);
         queue.put(3);
@@ -46,7 +46,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_MultipleTimes2_CorrectlyEnqueuesItems() throws InterruptedException {
+    public void Put_DefaultQueueMultipleItems2_CorrectEnqueues() throws InterruptedException {
         int arraySize = 1000;
         int[] ordering = new int[arraySize];
         for (int i = 0; i < arraySize; i++) {
