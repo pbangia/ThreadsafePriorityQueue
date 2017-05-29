@@ -31,7 +31,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Creates a PriorityBlockingQueue containing the elements in the specified collection.
      *
-     * @param c - the collection whose elements are to be placed into this priority queue
+     * @param c the collection whose elements are to be placed into this priority queue
      */
     public PipelinedPriorityQueue(Collection<? extends E> c) {
         if (c == null) throw new IllegalArgumentException("Input collection cannot be null");
@@ -44,9 +44,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Creates a PriorityBlockingQueue with the specified initial capacity that orders
      * its elements according to their natural ordering.
-     * @param initialCapacity - the initial capacity for this priority queue
      *
-     * @throws IllegalArgumentException - if initialCapacity is less than 1
+     * @param initialCapacity the initial capacity for this priority queue
+     * @throws IllegalArgumentException if initialCapacity is less than 1
      */
     public PipelinedPriorityQueue(int initialCapacity) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
@@ -57,8 +57,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Creates a PriorityBlockingQueue with the specified initial capacity that orders
      * its elements according to the specified comparator.
-     * @param initialCapacity - the initial capacity for this priority queue
-     * @param comparator  - the comparator that will be used to order this priority queue. If null, the natural ordering of the elements will be used.
+     *
+     * @param initialCapacity the initial capacity for this priority queue
+     * @param comparator      the comparator that will be used to order this priority queue. If null, the natural ordering of the elements will be used.
      */
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
@@ -86,7 +87,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     /**
-     * Recursive post-order traversal to initialise elements in the binary array
+     * Recursive postorder traversal to initialise elements in the binary array
      *
      * @param i index of element to be initialised
      */
@@ -113,7 +114,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private void initTokenArray() {
         for (int i = 0; i < tokenArray.length; i++) {
-            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, -1);
+            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, 1);
             tokenArray[i] = element;
         }
     }
@@ -122,10 +123,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * Inserts the specified element into this priority queue.
      * As the queue is unbounded, this method will never return false.
      *
-     * @param e -  the element to add
+     * @param e the element to add
      * @return true
-     * @throws ClassCastException   - if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
-     * @throws NullPointerException - if the specified element is null
+     * @throws ClassCastException   if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
+     * @throws NullPointerException if the specified element is null
      */
     public boolean add(E e) {
         return offer(e);
@@ -134,10 +135,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Inserts the specified element into this priority queue.
      * As the queue is unbounded, this method will never return false.
-     * @param e -  the element to add
+     *
+     * @param e the element to add
      * @return true
-     * @throws ClassCastException - if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
-     * @throws NullPointerException - if the specified element is null
+     * @throws ClassCastException   if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
+     * @throws NullPointerException if the specified element is null
      */
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
@@ -166,9 +168,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block or return false.
      *
-     * @param e       - the element to add
-     * @param timeout - This parameter is ignored as the method never blocks
-     * @param unit    - This parameter is ignored as the method never blocks
+     * @param e       the element to add
+     * @param timeout This parameter is ignored as the method never blocks
+     * @param unit    This parameter is ignored as the method never blocks
      * @return true
      * @throws InterruptedException
      */
@@ -178,7 +180,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     /**
      * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block.
-     * @param e - the element to add
+     *
+     * @param e the element to add
      */
     public void put(E e) {
         offer(e);
@@ -186,6 +189,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     /**
      * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
+     *
      * @return the head of this queue, or null if this queue is empty
      */
     public E peek() {
@@ -195,8 +199,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Retrieves, but does not remove, the head of this queue.
      * This method differs from peek only in that it throws an exception if this queue is empty.
-     * @return - the head of this queue
-     * @throws NoSuchElementException - if this queue is empty
+     *
+     * @return the head of this queue
+     * @throws NoSuchElementException if this queue is empty
      */
     public E element() {
         if (size == 0) {
@@ -207,6 +212,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     /**
      * Retrieves and removes the head of this queue, or returns null if this queue is empty.
+     *
      * @return the head of this queue, or null if this queue is empty
      */
     public E poll() {
@@ -215,8 +221,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     /**
      * Retrieves and removes the head of this queue, waiting if necessary until an element becomes available.
+     *
      * @return the head of this queue
-     * @throws InterruptedException - if interrupted while waiting
+     * @throws InterruptedException if interrupted while waiting
      */
     public E take() throws InterruptedException {
         return null;
@@ -225,10 +232,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Retrieves and removes the head of this queue,
      * waiting up to the specified wait time if necessary for an element to become available.
-     * @param timeout - how long to wait before giving up, in units of unit
-     * @param unit - a TimeUnit determining how to interpret the timeout parameter
+     *
+     * @param timeout how long to wait before giving up, in units of unit
+     * @param unit    a TimeUnit determining how to interpret the timeout parameter
      * @return the head of this queue, or null if the specified waiting time elapses before an element is available
-     * @throws InterruptedException - if interrupted while waiting
+     * @throws InterruptedException if interrupted while waiting
      */
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         return null;
@@ -237,6 +245,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     /**
      * Retrieves and removes the head of this queue.
      * This method differs from poll only in that it throws an exception if this queue is empty.
+     *
      * @return the head of this queue
      */
     public E remove() {
@@ -265,37 +274,104 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return value;
     }
 
+    /**
+     * Removes a single instance of the specified element from this queue, if it is present. More formally, removes an element e such that o.equals(e), if this queue contains one or more such elements.
+     * Returns true if this queue contained the specified element
+     * (or equivalently, if this queue changed as a result of the call).
+     *
+     * @param o element to be removed from this queue, if present
+     * @return if this queue changed as a result of the call
+     * @throws
+     */
     public boolean remove(Object o) {
         return false;
     }
 
+    /**
+     * Returns true if this collection contains no elements.
+     *
+     * @return true if this collection contains no elements
+     */
     public boolean isEmpty() {
         return (size == 0);
     }
 
+    /**
+     * Returns the number of elements in this collection.
+     *
+     * @return the number of elements in this collection
+     */
     public int size() {
         return size;
     }
 
+    /**
+     * Always returns Integer.MAX_VALUE because a PriorityBlockingQueue is not capacity constrained.
+     *
+     * @return Integer.MAX_VALUE
+     */
     public int remainingCapacity() {
-        return size == 0
-                ? getRoot().getCapacity() + 1
-                : getRoot().getCapacity();
+        return Integer.MAX_VALUE;
     }
 
+    /**
+     * Removes all of the elements from this collection (optional operation).
+     * The collection will be empty after this method returns.
+     */
     public void clear() {
         initBinaryArray();
         initTokenArray();
     }
 
+    /**
+     * Removes all available elements from this queue and adds them to the given collection.
+     * This operation may be more efficient than repeatedly polling this queue.
+     * A failure encountered while attempting to add elements to collection c may result in elements being
+     * in neither, either or both collections when the associated exception is thrown.
+     * Attempts to drain a queue to itself result in IllegalArgumentException. Further,
+     * the behavior of this operation is undefined if the specified collection is modified
+     * while the operation is in progress.
+     *
+     * @param c the collection to transfer elements into
+     * @return the number of elements transferred
+     * @throws UnsupportedOperationException if addition of elements is not supported by the specified collection
+     * @throws ClassCastException            if the class of an element of this queue prevents it from being added to the specified collection
+     * @throws NullPointerException          if the specified collection is null
+     * @throws IllegalArgumentException      if the specified collection is this queue, or some property of an element of this queue prevents it from being added to the specified collection
+     */
     public int drainTo(Collection<? super E> c) {
         return 0;
     }
 
+    /**
+     * Removes all available elements from this queue and adds them to the given collection.
+     * This operation may be more efficient than repeatedly polling this queue.
+     * A failure encountered while attempting to add elements to collection c may result in elements being
+     * in neither, either or both collections when the associated exception is thrown.
+     * Attempts to drain a queue to itself result in IllegalArgumentException. Further,
+     * the behavior of this operation is undefined if the specified collection is modified
+     * while the operation is in progress.
+     *
+     * @param c           the collection to transfer elements into
+     * @param maxElements the maximum number of elements to transfer
+     * @return the number of elements transferred
+     * @throws UnsupportedOperationException if addition of elements is not supported by the specified collection
+     * @throws ClassCastException            if the class of an element of this queue prevents it from being added to the specified collection
+     * @throws NullPointerException          if the specified collection is null
+     * @throws IllegalArgumentException      if the specified collection is this queue, or some property of an element of this queue prevents it from being added to the specified collection
+     */
     public int drainTo(Collection<? super E> c, int maxElements) {
         return 0;
     }
 
+    /**
+     * Returns an array containing all of the elements in this collection.
+     * The returned array will be "safe" in that no references to it are maintained by this collection.
+     * (In other words, this method must allocate a new array even if this collection is backed by an array).
+     * The caller is thus free to modify the returned array.
+     *
+     * @return an array containing all of the elements in this collection
+     */
     public synchronized Object[] toArray() {
         Object[] result = new Object[size];
         int taken = 0;
@@ -315,12 +391,25 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return result;
     }
 
+    // TODO javadoc for this
     public <T> T[] toArray(T[] a) {
         return null;
     }
 
+    /**
+     * Returns an iterator over the elements in this queue. The
+     * iterator does not return the elements in any particular order.
+     * The returned <tt>Iterator</tt> is a "weakly consistent"
+     * iterator that will never throw {@link
+     * ConcurrentModificationException}, and guarantees to traverse
+     * elements as they existed upon construction of the iterator, and
+     * may (but is not guaranteed to) reflect any modifications
+     * subsequent to construction.
+     *
+     * @return an iterator over the elements in this queue
+     */
     public Iterator<E> iterator() {
-
+        // TODO change this to match the documentation specifications
         return new Iterator<E>() {
             public boolean hasNext() {
                 return peek() != null;
@@ -344,6 +433,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         };
     }
 
+    /**
+     * Returns {@code true} if this queue contains the specified element.
+     * More formally, returns {@code true} if and only if this queue contains
+     * at least one element {@code e} such that {@code o.equals(e)}.
+     *
+     * @param o object to be checked for containment in this queue
+     * @return <tt>true</tt> if this queue contains the specified element
+     */
     public boolean contains(Object o) {
 
         for (BinaryArrayElement e : binaryArray) {
@@ -353,6 +450,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
+    /**
+     * Returns true if this collection contains all of the elements in the specified collection.
+     *
+     * @param c collection to be checked for containment in this collection
+     * @return if this collection contains all of the elements in the specified collection
+     * @throws ClassCastException   if the types of one or more elements in the specified collection are incompatible with this collection
+     * @throws NullPointerException if the specified collection contains one or more null elements and this collection does not permit null elements
+     */
     public boolean containsAll(Collection<?> c) {
         if (c.size() > size) return false;
 
@@ -365,6 +470,21 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return set1.size() == count;
     }
 
+    /**
+     * <p>This implementation iterates over the specified collection, and adds
+     * each object returned by the iterator to this collection, in turn.
+     * <p>
+     * <p>Note that this implementation will throw an
+     * <tt>UnsupportedOperationException</tt> unless <tt>add</tt> is
+     * overridden (assuming the specified collection is non-empty).
+     *
+     * @throws UnsupportedOperationException if the addAll operation is not supported by this collection
+     * @throws ClassCastException            if the class of an element of the specified collection prevents it from being added to this collection
+     * @throws NullPointerException          if the specified collection contains a null element and this collection does not permit null elements, or if the specified collection is null
+     * @throws IllegalArgumentException      if some property of an element of the specified collection prevents it from being added to this collection
+     * @throws IllegalStateException         if not all the elements can be added at this time due to insertion restrictions
+     * @see #add(Object)
+     */
     public boolean addAll(Collection<? extends E> c) {
         for (E e : c) {
             add(e);
@@ -372,10 +492,49 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
+    /**
+     *
+     * <p>This implementation iterates over this collection, checking each
+     * element returned by the iterator in turn to see if it's contained
+     * in the specified collection.  If it's so contained, it's removed from
+     * this collection with the iterator's <tt>remove</tt> method.
+     *
+     * <p>Note that this implementation will throw an
+     * <tt>UnsupportedOperationException</tt> if the iterator returned by the
+     * <tt>iterator</tt> method does not implement the <tt>remove</tt> method
+     * and this collection contains one or more elements in common with the
+     * specified collection.
+     *
+     * @throws UnsupportedOperationException if the removeAll method is not supported by this collection
+     * @throws ClassCastException if the types of one or more elements in this collection are incompatible with the specified collection
+     * @throws NullPointerException if this collection contains one or more null elements and the specified collection does not support null elements, or if the specified collection is null
+     *
+     * @see #remove(Object)
+     * @see #contains(Object)
+     */
     public boolean removeAll(Collection<?> c) {
         return false;
     }
 
+    /**
+     * <p>This implementation iterates over this collection, checking each
+     * element returned by the iterator in turn to see if it's contained
+     * in the specified collection.  If it's not so contained, it's removed
+     * from this collection with the iterator's <tt>remove</tt> method.
+     *
+     * <p>Note that this implementation will throw an
+     * <tt>UnsupportedOperationException</tt> if the iterator returned by the
+     * <tt>iterator</tt> method does not implement the <tt>remove</tt> method
+     * and this collection contains one or more elements not present in the
+     * specified collection.
+     *
+     * @throws UnsupportedOperationException  if the retainAll operation is not supported by this collection
+     * @throws ClassCastException   if the types of one or more elements in this collection are incompatible with the specified collection
+     * @throws NullPointerException  if this collection contains one or more null elements and the specified collection does not permit null elements, or if the specified collection is null
+     *
+     * @see #remove(Object)
+     * @see #contains(Object)
+     */
     public boolean retainAll(Collection<?> c) {
         return false;
     }
@@ -436,13 +595,13 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     private void checkCapacity() {
-        if (getRoot().getCapacity()<1){
+        if (getRoot().getCapacity() < 1) {
             int newSize = binaryArray.length * 2;
             BinaryArrayElement[] temp = new BinaryArrayElement[newSize];
 
             int elementPos = 1;
-            for (BinaryArrayElement e: binaryArray){
-                e.setCapacity(e.getCapacity()*2); //needs fixing
+            for (BinaryArrayElement e : binaryArray) {
+                e.setCapacity(e.getCapacity() * 2); //needs fixing
                 temp[elementPos] = e;
                 elementPos++;
             }
