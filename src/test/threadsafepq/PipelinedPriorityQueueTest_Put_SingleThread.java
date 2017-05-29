@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Taranpreet on 27/05/2017.
  */
-public class PipelinedPriorityQueueTest_SingleThread {
+public class PipelinedPriorityQueueTest_Put_SingleThread {
 
     private PipelinedPriorityQueue<Integer> queue;
 
@@ -63,32 +63,6 @@ public class PipelinedPriorityQueueTest_SingleThread {
         for (int i = 0; i < arraySize; i++) {
             assertEquals(ordering[i], (int) (Integer) queueArray[i]);
         }
-    }
-
-    @Test
-    public void Remove_SingleItem_CorrectlyDequeuesItem() throws InterruptedException {
-        queue.put(1);
-        int result = queue.remove();
-
-        assertEquals(1, result);
-    }
-
-    @Test
-    public void Remove_SingleItem2_CorrectlyDequeuesItem() throws InterruptedException {
-        queue.put(1);
-        queue.put(0);
-        int result = queue.remove();
-
-        assertEquals(0, result);
-    }
-
-    @Test
-    public void Remove_SingleItem3_CorrectlyDequeuesItem() throws InterruptedException {
-        queue.put(0);
-        queue.put(1);
-        int result = queue.remove();
-
-        assertEquals(0, result);
     }
 
     private void shuffleArray(int[] array) {
