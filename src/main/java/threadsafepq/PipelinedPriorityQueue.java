@@ -404,9 +404,36 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return result;
     }
 
-    // TODO javadoc for this
+    /**
+     * Returns an array containing all of the elements in this queue.
+     * The runtime type of the returned array is that of the specified array.
+     * If the queue fits in the specified array, it is returned therein.
+     * If the queue fits with unfilled elements, the element in the array immediately following the end of the collection is set to null
+     * Otherwise a new array is allocated with the runtime type of the specified array and the size of this queue.
+     *
+     * @param a the array into which the elements of the queue are to be stored, if big enough
+     * @return an array containing all of the elements in this queue
+     */
     public <T> T[] toArray(T[] a) {
-        return null;
+        if (a.length < size.get()) {
+            return (T[])toArray();
+        }
+
+        int taken = 0;
+        int runner = 0;
+        while (taken < size.get() && runner <binaryArray.length) {
+            if (binaryArray[runner].getValue() != null) {
+                a[taken] = (T)binaryArray[taken].getValue();
+                taken++;
+            }
+            runner++;
+        }
+
+        if (taken < a.length) {
+            a[taken] = null;
+        }
+
+        return a;
     }
 
     /**
