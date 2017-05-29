@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
@@ -18,7 +19,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private BinaryArrayElement<E>[] binaryArray;
     private TokenArrayElement<E>[] tokenArray;
     private Comparator<? super E> comparator;
-    private int size = 0;
+    private AtomicInteger size;
 
     /**
      * Creates a PriorityBlockingQueue with the default initial capacity (11)
@@ -71,10 +72,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.binaryArray = new BinaryArrayElement[capacity];
         this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
+        this.size = new AtomicInteger(0);
         initInternalArrays();
-        for (int i = 0; i < capacity; i++) {
-            System.out.println(binaryArray[i].getCapacity());
-        }
     }
 
     private void initInternalArrays() {
@@ -152,7 +151,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         while (level < tokenArray.length) {
             boolean result = localEnqueue(level);
             if (result) {
-                size++;
+                size.getAndIncrement();
                 success = true;
                 break;
             } else {
@@ -204,7 +203,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws NoSuchElementException if this queue is empty
      */
     public E element() {
-        if (size == 0) {
+        if (size.get() == 0) {
             throw new NoSuchElementException("Queue is empty");
         }
         return peek();
@@ -249,7 +248,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue
      */
     public E remove() {
-        if (size == 0) {
+        if (size.get() == 0) {
             // TODO block thread
             return null;
         }
@@ -270,7 +269,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             }
         }
 
-        size--;
+        size.decrementAndGet();
         return value;
     }
 
@@ -293,7 +292,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return true if this collection contains no elements
      */
     public boolean isEmpty() {
-        return (size == 0);
+        return (size.get() == 0);
     }
 
     /**
@@ -302,7 +301,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the number of elements in this collection
      */
     public int size() {
-        return size;
+        return size.get();
     }
 
     /**
@@ -373,10 +372,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return an array containing all of the elements in this collection
      */
     public synchronized Object[] toArray() {
-        Object[] result = new Object[size];
+        Object[] result = new Object[size.get()];
         int taken = 0;
         int runner = 0;
-        while (taken < size && runner < binaryArray.length) {
+        while (taken < size.get() && runner < binaryArray.length) {
             if (binaryArray[runner].getValue() != null) {
                 result[taken] = binaryArray[runner].getValue();
                 taken++;
@@ -384,7 +383,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             runner++;
         }
 
-        if (taken != size) {
+        if (taken != size.get()) {
             // TODO something went wrong
         }
 
@@ -459,7 +458,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws NullPointerException if the specified collection contains one or more null elements and this collection does not permit null elements
      */
     public boolean containsAll(Collection<?> c) {
-        if (c.size() > size) return false;
+        if (c.size() > size.get()) return false;
 
         HashSet set1 = new HashSet(c);
         int count = 0;
