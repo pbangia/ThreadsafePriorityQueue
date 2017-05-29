@@ -8,6 +8,9 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
@@ -20,6 +23,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private TokenArrayElement<E>[] tokenArray;
     private Comparator<? super E> comparator;
     private AtomicInteger size;
+
+    private final Lock lock = new ReentrantLock();
+    private final Condition notEmpty = lock.newCondition();
 
     /**
      * Creates a PriorityBlockingQueue with the default initial capacity (11)
@@ -192,7 +198,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E peek() {
-        return null;
+        return binaryArray[0].getValue();
     }
 
     /**
@@ -225,7 +231,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws InterruptedException if interrupted while waiting
      */
     public E take() throws InterruptedException {
-        return null;
+        while (size.get() == 0) {
+            notEmpty.await();
+            // TODO update other methods to cause the signal for this await()
+        }
+
+        E head = poll();
+        assert head != null;
+        return head;
     }
 
     /**
