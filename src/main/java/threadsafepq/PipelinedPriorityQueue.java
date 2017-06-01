@@ -334,6 +334,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public void clear() {
         initBinaryArray();
         initTokenArray();
+        size.set(0);
     }
 
     /**

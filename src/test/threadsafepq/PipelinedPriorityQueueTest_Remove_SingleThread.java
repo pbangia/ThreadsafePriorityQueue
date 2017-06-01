@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Taranpreet on 29/05/2017.
@@ -41,6 +43,15 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
         int result = queue.remove();
 
         assertEquals(0, result);
+    }
+
+    @Test
+    public void Remove_ClearAll() {
+        queue.put(0);
+        queue.put(1);
+        assertFalse(queue.isEmpty());
+        queue.clear();
+        assertTrue(queue.isEmpty());
     }
 
 }
