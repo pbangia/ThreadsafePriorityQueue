@@ -593,7 +593,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             tokenArray[i].setValue(binaryArray[position].getValue());
             binaryArray[position].setValue(temp);
         }
-
+        binaryArray[position].decrementCapacity();
         tokenArray[i + 1].setValue(tokenArray[i].getValue());
         tokenArray[i].setValue(null);
         if (getLeft(position).getCapacity() > 0) {
