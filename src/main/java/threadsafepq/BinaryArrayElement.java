@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Created by Taranpreet on 26/05/2017.
@@ -15,11 +16,13 @@ public class BinaryArrayElement<E> implements Serializable {
     private boolean isActive;
     private E value;
     private int capacity;
+    private Comparator<? super E> comparator;
 
-    public BinaryArrayElement(boolean isActive, E value, int capacity) {
+    public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator) {
         this.isActive = isActive;
         this.value = value;
         this.capacity = capacity;
+        this.comparator = comparator;
     }
 
     public boolean isActive() {
@@ -47,9 +50,14 @@ public class BinaryArrayElement<E> implements Serializable {
     }
 
     public boolean isGreaterThan(E o) {
-        int result = ((Comparable<? super E>) o).compareTo(this.value);
-        boolean rb = (result > 0);
-        return rb;
+        int result;
+        if (comparator != null) {
+            result = comparator.compare(o, value);
+        } else {
+            result = ((Comparable<? super E>) o).compareTo(this.value);
+        }
+
+        return (result > 0);
     }
 
     @Override

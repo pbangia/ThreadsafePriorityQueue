@@ -4,6 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Created by Taranpreet on 26/05/2017.
@@ -15,11 +16,13 @@ public class TokenArrayElement<E> implements Serializable {
     private Operation operation;
     private E value;
     private int position;
+    private Comparator<? super E> comparator;
 
-    public TokenArrayElement(Operation operation, E value, int position) {
+    public TokenArrayElement(Operation operation, E value, int position, Comparator<? super E> comparator) {
         this.operation = operation;
         this.value = value;
         this.position = position;
+        this.comparator = comparator;
     }
 
     protected enum Operation {
@@ -54,9 +57,14 @@ public class TokenArrayElement<E> implements Serializable {
     }
 
     public boolean isGreaterThan(E o) {
-        int result = ((Comparable<? super E>) o).compareTo(this.value);
-        boolean rb = (result > 0);
-        return rb;
+        int result;
+        if (comparator != null) {
+            result = comparator.compare(o, value);
+        } else {
+            result = ((Comparable<? super E>) o).compareTo(this.value);
+        }
+
+        return (result > 0);
     }
 
     @Override

@@ -113,13 +113,13 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             capacity += rightChild.getCapacity();
         }
 
-        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity);
+        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity, comparator);
         binaryArray[i] = element;
     }
 
     private void initTokenArray() {
         for (int i = 0; i < tokenArray.length; i++) {
-            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, 1);
+            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, 1, comparator);
             tokenArray[i] = element;
         }
     }
