@@ -703,6 +703,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         initTokenArray();
     }
 
+    private int getLevelOfIndex(int index) {
+        return (int) Math.floor(Math.log(index + 1) / Math.log(2)) + 1;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
