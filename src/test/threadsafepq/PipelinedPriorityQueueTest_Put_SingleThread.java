@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static junit.framework.TestCase.assertFalse;
@@ -63,6 +64,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
         Object[] queueArray = queue.toArray();
         assertEquals(arraySize, queueArray.length);
+        Arrays.sort(ordering);
         for (int i = 0; i < arraySize; i++) {
             assertEquals(ordering[i], (int) (Integer) queueArray[i]);
         }
