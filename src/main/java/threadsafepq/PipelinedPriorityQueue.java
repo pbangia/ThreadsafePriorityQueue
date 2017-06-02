@@ -149,14 +149,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
 
-        tokenArray[0].setValue(e);
-        tokenArray[0].setPosition(0);
+        //tokenArray[0].setValue(e);
+        //tokenArray[0].setPosition(0);
+        TokenElement<E> tElement = new TokenElement<E>( e, 0, comparator);
 
         int level = 0;
         boolean success = false;
         while (level < tokenArray.length) {
-            boolean result = localEnqueue(level);
-            if (result) {
+            tElement = localEnqueue(tElement);
+            if (tElement.isCompleted) {
                 size.getAndIncrement();
                 success = true;
                 break;
@@ -580,28 +581,27 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
-    private boolean localEnqueue(int i) {
-        int position = tokenArray[i].getPosition();
-        E value = tokenArray[i].getValue();
+    private TokenElement<E> localEnqueue(TokenElement<E> tElement) {
+        int position = tElement.getPosition();
+        E value = tElement.getValue();
         if (!binaryArray[position].isActive()) {
             binaryArray[position].setValue(value);
             binaryArray[position].setActive(true);
             binaryArray[position].decrementCapacity();
-            return true;
-        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
-            E temp = tokenArray[i].getValue();
-            tokenArray[i].setValue(binaryArray[position].getValue());
+            tElement.isCompleted = true;
+            return tElement;
+        } else if (tElement.isGreaterThan(binaryArray[position].getValue())) {
+            E temp = tElement.getValue();
+            tElement.setValue(binaryArray[position].getValue());
             binaryArray[position].setValue(temp);
         }
         binaryArray[position].decrementCapacity();
-        tokenArray[i + 1].setValue(tokenArray[i].getValue());
-        tokenArray[i].setValue(null);
         if (getLeft(position).getCapacity() > 0) {
-            tokenArray[i + 1].setPosition(getLeftIndex(position));
+            tElement.setPosition(getLeftIndex(position));
         } else {
-            tokenArray[i + 1].setPosition(getRightIndex(position));
+            tElement.setPosition(getRightIndex(position));
         }
-        return false;
+        return tElement;
     }
 
     private boolean localDequeue(int i) {
