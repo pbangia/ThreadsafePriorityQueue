@@ -11,9 +11,6 @@ import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by Taranpreet on 27/05/2017.
- */
 public class BenchmarkTest {
 
     private PipelinedPriorityQueue<Integer> pipelinedQ;
@@ -21,29 +18,47 @@ public class BenchmarkTest {
 
     @Before
     public void before() {
-        blockingQ = new PriorityBlockingQueue<Integer>(100001);
-        pipelinedQ = new PipelinedPriorityQueue<Integer>(100001);
+        blockingQ = new PriorityBlockingQueue<Integer>(1000001);
+        pipelinedQ = new PipelinedPriorityQueue<Integer>(1000001);
+        PriorityBlockingQueue<Integer> q = new PriorityBlockingQueue<Integer>(100001);
+        for (int i=0; i<100000; i++) q.put(i);
+
     }
 
     @Test
-    public void Put_DefaultEmptyQueues_Timing() {
-
-        long start = System.currentTimeMillis();
-        for (int i=0; i<100000; i++){
-            blockingQ.put(i);
+    public void Put_BlockingQueueTiming(){
+        long total=0;
+        for (int j=0; j<10; j++) {
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 1000000; i++) {
+                blockingQ.put(i);
+            }
+            long end = System.currentTimeMillis();
+            blockingQ.clear();
+            long elapsed = (end-start);
+            total+=elapsed;
         }
-        long end = System.currentTimeMillis();
-        long elapsed = end-start;
-        System.out.println("PriorityBlockingQueue time:" + elapsed);
 
-        start = System.currentTimeMillis();
-        for (int i=0; i<100000; i++){
-            pipelinedQ.put(i);
-        }
-        end = System.currentTimeMillis();
-        elapsed = end-start;
-        System.out.println("PipelinedPriorityQueue time:" + elapsed);
+        System.out.println("PriorityBlockingQueue time:" + total/10);
     }
+
+    @Test
+    public void Put_PipelinedTiming() {
+        long total=0;
+        for (int j=0; j<10; j++) {
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 1000000; i++) {
+                pipelinedQ.put(i);
+            }
+            long end = System.currentTimeMillis();
+            pipelinedQ.clear();
+            long elapsed = (end-start);
+            total+=elapsed;
+        }
+        System.out.println("PipelinedPriorityQueue time:" + total/10);
+
+    }
+
 
 
 }
