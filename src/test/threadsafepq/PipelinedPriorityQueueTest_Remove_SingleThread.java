@@ -43,6 +43,8 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
         int result = queue.remove();
 
         assertEquals(0, result);
+        result = queue.remove();
+        assertEquals(1, result);
     }
 
     @Test

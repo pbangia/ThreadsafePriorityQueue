@@ -18,7 +18,7 @@ public class BenchmarkTest {
 
     @Before
     public void before() {
-        blockingQ = new PriorityBlockingQueue<Integer>(1000001);
+        blockingQ = new PriorityBlockingQueue<Integer>();
         pipelinedQ = new PipelinedPriorityQueue<Integer>(1000001);
         PriorityBlockingQueue<Integer> q = new PriorityBlockingQueue<Integer>(100001);
         for (int i=0; i<100000; i++) q.put(i);
@@ -47,7 +47,7 @@ public class BenchmarkTest {
         long total=0;
         for (int j=0; j<10; j++) {
             long start = System.currentTimeMillis();
-            for (int i = 0; i < 1000000; i++) {
+            for (int i = 0; i < 100000; i++) {
                 pipelinedQ.put(i);
             }
             long end = System.currentTimeMillis();

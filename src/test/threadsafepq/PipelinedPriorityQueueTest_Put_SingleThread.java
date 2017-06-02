@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +52,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
     @Test
     public void Put_DefaultQueueMultipleItems2_CorrectEnqueues() throws InterruptedException {
-        int arraySize = 1000;
+        int arraySize = 13;
         int[] ordering = new int[arraySize];
         for (int i = 0; i < arraySize; i++) {
             ordering[i] = i;
@@ -66,7 +67,8 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         assertEquals(arraySize, queueArray.length);
         Arrays.sort(ordering);
         for (int i = 0; i < arraySize; i++) {
-            assertEquals(ordering[i], (int) (Integer) queueArray[i]);
+            int removed = queue.remove();
+            assertEquals(ordering[i], removed);
         }
     }
 
