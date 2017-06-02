@@ -615,10 +615,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         BinaryArrayElement<E> greatestChild;
         int greatestChildPosition;
 
-        if (leftChild == null) {
+        if (leftChild == null || leftChild.getValue() == null) {
             greatestChild = rightChild;
             greatestChildPosition = getRightIndex(current);
-        } else if (rightChild == null || leftChild.isGreaterThan(rightChild.getValue())) {
+        } else if (rightChild == null || rightChild.getValue() == null || leftChild.isGreaterThan(rightChild.getValue())) {
             greatestChild = leftChild;
             greatestChildPosition = getLeftIndex(current);
         } else {
@@ -629,6 +629,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         binaryArray[current].setActive(true);
         binaryArray[current].setValue(greatestChild.getValue());
         greatestChild.setActive(false);
+        greatestChild.setValue(null);
         greatestChild.incrementCapacity();
         tokenArray[i + 1].setPosition(greatestChildPosition);
         return false;
