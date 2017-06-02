@@ -21,8 +21,29 @@ public class BenchmarkTest {
 
     @Before
     public void before() {
-        blockingQ = new PriorityBlockingQueue<Integer>();
-        pipelinedQ = new PipelinedPriorityQueue<Integer>();
+        blockingQ = new PriorityBlockingQueue<Integer>(100001);
+        pipelinedQ = new PipelinedPriorityQueue<Integer>(100001);
     }
+
+    @Test
+    public void Put_DefaultEmptyQueues_Timing() {
+
+        long start = System.currentTimeMillis();
+        for (int i=0; i<100000; i++){
+            blockingQ.put(i);
+        }
+        long end = System.currentTimeMillis();
+        long elapsed = end-start;
+        System.out.println("PriorityBlockingQueue time:" + elapsed);
+
+        start = System.currentTimeMillis();
+        for (int i=0; i<100000; i++){
+            pipelinedQ.put(i);
+        }
+        end = System.currentTimeMillis();
+        elapsed = end-start;
+        System.out.println("PipelinedPriorityQueue time:" + elapsed);
+    }
+
 
 }
