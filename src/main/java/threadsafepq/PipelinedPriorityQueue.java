@@ -699,12 +699,33 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             binaryArray[i] = oldBinaryArray[i];
         }
 
+        updateCapacities(0);
         tokenArray = new TokenArrayElement[BinaryTreeUtils.convertSizeToNumLevels(newCapacity)];
         initTokenArray();
     }
 
     private int getLevelOfIndex(int index) {
         return (int) Math.floor(Math.log(index + 1) / Math.log(2)) + 1;
+    }
+
+    private void updateCapacities(int i) {
+        if (i < 0 || i >= binaryArray.length) return;
+        updateCapacities(getLeftIndex(i));
+        updateCapacities(getRightIndex(i));
+
+        int capacity = binaryArray[i].isActive() ? 0 : 1;
+
+        BinaryArrayElement<E> leftChild = getLeft(i);
+        if (leftChild != null) {
+            capacity += leftChild.getCapacity();
+        }
+
+        BinaryArrayElement<E> rightChild = getRight(i);
+        if (rightChild != null) {
+            capacity += rightChild.getCapacity();
+        }
+
+        binaryArray[i].setCapacity(capacity);
     }
 
     @Override
