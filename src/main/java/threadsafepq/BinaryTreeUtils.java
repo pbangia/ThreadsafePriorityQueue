@@ -6,7 +6,7 @@ package threadsafepq;
 public class BinaryTreeUtils {
 
     public static int convertSizeToNumLevels(int size) {
-        return (int) (Math.log(size + 1) / Math.log(2));
+        return (int) (Math.ceil(Math.log(size + 1) / Math.log(2)));
     }
 
     public static int convertNumLevelsToSize(int levels) {
