@@ -765,7 +765,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     @Override
     public String toString() {
-        // TODO
-        return null;
+        String s = "";
+        int seen = 0;
+        for (BinaryArrayElement<E> e: binaryArray){
+            if (seen<size.get() && e.getValue()!=null) {
+                s += "\n" + e.toString();
+            }
+            seen++;
+        }
+        return s;
+
     }
 }
