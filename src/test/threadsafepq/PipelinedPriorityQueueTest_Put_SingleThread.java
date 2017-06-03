@@ -111,9 +111,35 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
         assertEquals(queueArrayLength, queueArray.length);
         int[] expected = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+        compareAll(expected, defaultQueue);
+    }
+
+    @Test
+    public void Put_InOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int queueArrayLength = 13;
         for (int i = 0; i < queueArrayLength; i++) {
-            assertEquals(expected[i], (int) defaultQueue.remove());
+            capacityQueue.put(i);
         }
+
+        Object[] queueArray = capacityQueue.toArray();
+
+        assertEquals(queueArrayLength, queueArray.length);
+        int[] expected = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+        compareAll(expected, capacityQueue);
+    }
+
+    @Test
+    public void Put_InOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int queueArrayLength = 13;
+        for (int i = 0; i < queueArrayLength; i++) {
+            capacityComparatorQueue.put(i);
+        }
+
+        Object[] queueArray = capacityComparatorQueue.toArray();
+
+        assertEquals(queueArrayLength, queueArray.length);
+        int[] expected = {12,11,10,9,8,7,6,5,4,3,2,1,0};
+        compareAll(expected, capacityComparatorQueue);
     }
 
     @Test
@@ -163,6 +189,12 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     @Test
     public void Put_DefaultQueueReverseOrderedItems_CorrectEnqueues() throws InterruptedException {
 
+    }
+
+    private void compareAll(int[] expected, PipelinedPriorityQueue<Integer> q) {
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], (int) q.remove());
+        }
     }
 
     private void compareAll(Object[] input, int[] expected) {
