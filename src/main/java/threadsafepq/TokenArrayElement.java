@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Taranpreet on 26/05/2017.
@@ -17,12 +18,18 @@ public class TokenArrayElement<E> implements Serializable {
     private E value;
     private int position;
     private Comparator<? super E> comparator;
+    private final ReentrantLock reentrantLock;
 
-    public TokenArrayElement(Operation operation, E value, int position, Comparator<? super E> comparator) {
+    public TokenArrayElement(Operation operation,
+                             E value,
+                             int position,
+                             Comparator<? super E> comparator,
+                             ReentrantLock reentrantLock) {
         this.operation = operation;
         this.value = value;
         this.position = position;
         this.comparator = comparator;
+        this.reentrantLock = reentrantLock;
     }
 
     protected enum Operation {
