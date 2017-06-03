@@ -82,42 +82,36 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_DefaultQueueMultipleItems_CorrectEnqueues() throws InterruptedException {
-        defaultQueue.put(1);
-        defaultQueue.put(0);
-        defaultQueue.put(3);
-        defaultQueue.put(2);
-        defaultQueue.put(5);
+    public void Put_InOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[DEFAULT_INITIAL_CAPACITY + 5];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = i;
+        }
+        int[] outputList = Arrays.copyOf(inputList, inputList.length);
 
-        Object[] queueArray = defaultQueue.toArray();
-        assertEquals(5, queueArray.length);
-        assertEquals(0, (int)defaultQueue.remove());
-        assertEquals(1, (int)defaultQueue.remove());
-        assertEquals(2, (int)defaultQueue.remove());
-        assertEquals(3, (int)defaultQueue.remove());
-        assertEquals(5, (int)defaultQueue.remove());
+        testPutWithInputList(defaultQueue, inputList, outputList);
     }
 
     @Test
-    public void Put_DefaultQueueMultipleItems2_CorrectEnqueues() throws InterruptedException {
-        int arraySize = 1000;
-        int[] ordering = new int[arraySize];
-        for (int i = 0; i < arraySize; i++) {
-            ordering[i] = i;
+    public void Put_InOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = i;
         }
-        shuffleArray(ordering);
+        int[] outputList = Arrays.copyOf(inputList, inputList.length);
 
-        for (int i = 0; i < arraySize; i++) {
-            defaultQueue.put(ordering[i]);
-        }
+        testPutWithInputList(capacityQueue, inputList, outputList);
+    }
 
-        Object[] queueArray = defaultQueue.toArray();
-        assertEquals(arraySize, queueArray.length);
-        Arrays.sort(ordering);
-        for (int i = 0; i < arraySize; i++) {
-            int removed = defaultQueue.remove();
-            assertEquals(ordering[i], removed);
+    @Test
+    public void Put_InOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = i;
         }
+        int[] outputList = Arrays.copyOf(inputList, inputList.length);
+
+        testPutWithInputList(capacityComparatorQueue, inputList, outputList);
     }
 
     private void testPutWithInputList(PipelinedPriorityQueue<Integer> queue,
