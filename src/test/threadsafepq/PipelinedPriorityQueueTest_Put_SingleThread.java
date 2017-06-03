@@ -172,6 +172,42 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         testPutWithInputList(capacityComparatorQueue, inputList, outputList);
     }
 
+    @Test
+    public void Put_ReverseOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[DEFAULT_INITIAL_CAPACITY + 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = inputList.length - i - 1;
+            outputList[i] = i;
+        }
+
+        testPutWithInputList(defaultQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = inputList.length - i - 1;
+            outputList[i] = i;
+        }
+
+        testPutWithInputList(capacityQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = i;
+            outputList[i] = inputList.length - i - 1;
+        }
+
+        testPutWithInputList(capacityComparatorQueue, inputList, outputList);
+    }
+
     private void testPutWithInputList(PipelinedPriorityQueue<Integer> queue,
                                       int[] inputList, int[] expectedOutput) {
         for (int i : inputList) {
