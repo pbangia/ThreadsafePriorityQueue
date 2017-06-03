@@ -147,7 +147,30 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         testPutWithInputList(capacityComparatorQueue, inputList, outputList);
     }
 
+    // Reverse Order tests
+    @Test
+    public void Put_ReverseOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {5, 4, 3, 2, 1};
+        int[] outputList = {1, 2, 3, 4, 5};
 
+        testPutWithInputList(defaultQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {5, 4, 3, 2, 1};
+        int[] outputList = {1, 2, 3, 4, 5};
+
+        testPutWithInputList(capacityQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {1, 2, 3, 4, 5};
+        int[] outputList = {5, 4, 3, 2, 1};
+
+        testPutWithInputList(capacityComparatorQueue, inputList, outputList);
+    }
 
     private void testPutWithInputList(PipelinedPriorityQueue<Integer> queue,
                                       int[] inputList, int[] expectedOutput) {
