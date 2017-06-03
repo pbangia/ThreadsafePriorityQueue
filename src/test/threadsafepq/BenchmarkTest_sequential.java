@@ -5,13 +5,14 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.Exchanger;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class BenchmarkTest {
+public class BenchmarkTest_sequential {
 
     private PipelinedPriorityQueue<Integer> pipelinedQ;
     private PriorityBlockingQueue<Integer> blockingQ;
@@ -58,7 +59,5 @@ public class BenchmarkTest {
         System.out.println("PipelinedPriorityQueue time:" + total/10);
 
     }
-
-
 
 }
