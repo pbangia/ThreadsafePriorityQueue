@@ -227,12 +227,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         E value = binaryArray[0].getValue();
         binaryArray[0].setActive(false);
         binaryArray[0].incrementCapacity();
-        TokenElement<E> tElement = new TokenElement<E>( null, 0, comparator);
+        tokenArray[0].setPosition(0);
 
         int level = 0;
         boolean done = false;
-        while (level < treeHeight && !done) {
-            tElement = localDequeue(tElement);
+        while (level < tokenArray.length && !done) {
+            done = localDequeue(level);
             level++;
         }
 
@@ -632,14 +632,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
-    private TokenElement<E> localDequeue(TokenElement<E> tElement) {
-        int current = tElement.getPosition();
+    private boolean localDequeue(int i) {
+        int current = tokenArray[i].getPosition();
         BinaryArrayElement<E> leftChild = getLeft(current);
         BinaryArrayElement<E> rightChild = getRight(current);
 
         if ((leftChild == null || !leftChild.isActive())
                 && (rightChild == null || !rightChild.isActive())) {
-            return tElement;
+            return true;
         }
 
         BinaryArrayElement<E> greatestChild;
@@ -661,8 +661,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         greatestChild.setActive(false);
         greatestChild.setValue(null);
         greatestChild.incrementCapacity();
-        tElement.setPosition(greatestChildPosition);
-        return tElement;
+        tokenArray[i + 1].setPosition(greatestChildPosition);
+        return false;
     }
 
     private void checkCapacity() {
