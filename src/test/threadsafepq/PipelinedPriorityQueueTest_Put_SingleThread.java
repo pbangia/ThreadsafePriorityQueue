@@ -57,7 +57,48 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         assertEquals(1, queueArray.length);
         assertEquals(1, (int) (Integer) queueArray[0]);
     }
-    
+
+    @Test
+    public void Put_InOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        defaultQueue.put(0);
+        defaultQueue.put(1);
+        defaultQueue.put(2);
+        defaultQueue.put(3);
+        defaultQueue.put(4);
+
+        Object[] queueArray = defaultQueue.toArray();
+        int[] expected = {0,1,2,3,4};
+        assertEquals(5, queueArray.length);
+        putAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_InOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        capacityQueue.put(0);
+        capacityQueue.put(1);
+        capacityQueue.put(2);
+        capacityQueue.put(3);
+        capacityQueue.put(4);
+
+        Object[] queueArray = capacityQueue.toArray();
+        int[] expected = {0,1,2,3,4};
+        assertEquals(5, queueArray.length);
+        putAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_InOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        capacityComparatorQueue.put(4);
+        capacityComparatorQueue.put(3);
+        capacityComparatorQueue.put(2);
+        capacityComparatorQueue.put(1);
+        capacityComparatorQueue.put(0);
+
+        Object[] queueArray = capacityComparatorQueue.toArray();
+        int[] expected = {4,3,2,1,0};
+        assertEquals(5, queueArray.length);
+        putAll(queueArray, expected);
+    }
 
     @Test
     public void Put_DefaultQueueMultipleItems_CorrectEnqueues() throws InterruptedException {
@@ -106,6 +147,12 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     @Test
     public void Put_DefaultQueueReverseOrderedItems_CorrectEnqueues() throws InterruptedException {
 
+    }
+
+    private void putAll(Object[] input, int[] expected) {
+        for (int i = 0; i < input.length; i++) {
+            assertEquals(expected[i], (int) input[i]);
+        }
     }
 
     private void shuffleArray(int[] array) {
