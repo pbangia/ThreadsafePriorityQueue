@@ -69,7 +69,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         Object[] queueArray = defaultQueue.toArray();
         int[] expected = {0,1,2,3,4};
         assertEquals(5, queueArray.length);
-        putAll(queueArray, expected);
+        compareAll(queueArray, expected);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         Object[] queueArray = capacityQueue.toArray();
         int[] expected = {0,1,2,3,4};
         assertEquals(5, queueArray.length);
-        putAll(queueArray, expected);
+        compareAll(queueArray, expected);
     }
 
     @Test
@@ -97,7 +97,23 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         Object[] queueArray = capacityComparatorQueue.toArray();
         int[] expected = {4,3,2,1,0};
         assertEquals(5, queueArray.length);
-        putAll(queueArray, expected);
+        compareAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_InOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int queueArrayLength = 13;
+        for (int i = 0; i < queueArrayLength; i++) {
+            defaultQueue.put(i);
+        }
+
+        Object[] queueArray = defaultQueue.toArray();
+
+        assertEquals(queueArrayLength, queueArray.length);
+        int[] expected = {0,1,2,3,4,5,6,7,8,9,10,11,12};
+        for (int i = 0; i < queueArrayLength; i++) {
+            assertEquals(expected[i], (int) defaultQueue.remove());
+        }
     }
 
     @Test
@@ -149,7 +165,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
     }
 
-    private void putAll(Object[] input, int[] expected) {
+    private void compareAll(Object[] input, int[] expected) {
         for (int i = 0; i < input.length; i++) {
             assertEquals(expected[i], (int) input[i]);
         }
