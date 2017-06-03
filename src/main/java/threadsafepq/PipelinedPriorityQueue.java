@@ -148,7 +148,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
         binaryArray[0].unlock();
         TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
-        while (!tElement.isCompleted) {
+        while (!tElement.isCompleted()) {
             tElement = localEnqueue(tElement);
         }
         size.getAndIncrement();
@@ -569,7 +569,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             element.setValue(value);
             element.setActive(true);
             element.decrementCapacity();
-            tElement.isCompleted = true;
+            tElement.setCompleted(true);
             element.unlock();
             return tElement;
         } else if (tElement.isGreaterThan(element.getValue())) {

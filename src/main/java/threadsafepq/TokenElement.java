@@ -16,7 +16,7 @@ public class TokenElement<E> implements Serializable {
     private E value;
     private int position;
     private Comparator<? super E> comparator;
-    public boolean isCompleted = false;
+    private boolean isCompleted = false;
 
     public TokenElement(E value, int position, Comparator<? super E> comparator) {
         this.value = value;
@@ -49,6 +49,14 @@ public class TokenElement<E> implements Serializable {
         }
 
         return (result > 0);
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.isCompleted = completed;
     }
 
     @Override
