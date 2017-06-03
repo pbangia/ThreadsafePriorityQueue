@@ -32,6 +32,33 @@ public class BinaryArrayElement<E> implements Serializable {
         return isActive;
     }
 
+    public boolean isGreaterThan(E o) {
+        int result;
+        if (comparator != null) {
+            result = comparator.compare(o, value);
+        } else {
+            result = ((Comparable<? super E>) o).compareTo(this.value);
+        }
+
+        return (result > 0);
+    }
+
+    public void decrementCapacity() {
+        this.capacity--;
+    }
+
+    public void incrementCapacity() {
+        this.capacity++;
+    }
+
+    public void lock() {
+        reentrantLock.lock();
+    }
+
+    public void unlock() {
+        reentrantLock.unlock();
+    }
+
     public void setActive(boolean active) {
         isActive = active;
     }
@@ -52,15 +79,8 @@ public class BinaryArrayElement<E> implements Serializable {
         this.capacity = capacity;
     }
 
-    public boolean isGreaterThan(E o) {
-        int result;
-        if (comparator != null) {
-            result = comparator.compare(o, value);
-        } else {
-            result = ((Comparable<? super E>) o).compareTo(this.value);
-        }
-
-        return (result > 0);
+    public Comparator<? super E> getComparator() {
+        return comparator;
     }
 
     @Override
@@ -93,21 +113,5 @@ public class BinaryArrayElement<E> implements Serializable {
                 ", value=" + value +
                 ", capacity=" + capacity +
                 '}';
-    }
-
-    public void decrementCapacity() {
-        this.capacity--;
-    }
-
-    public void incrementCapacity() {
-        this.capacity++;
-    }
-
-    public void lock() {
-        reentrantLock.lock();
-    }
-
-    public void unlock() {
-        reentrantLock.unlock();
     }
 }
