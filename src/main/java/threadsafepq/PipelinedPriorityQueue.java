@@ -20,12 +20,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
 
     private BinaryArrayElement<E>[] binaryArray;
-    private TokenArrayElement<E>[] tokenArray;
     private Comparator<? super E> comparator;
     private AtomicInteger size;
 
     private final Lock lock = new ReentrantLock();
     private final Condition notEmpty = lock.newCondition();
+    private int treeHeight;
 
     /**
      * Creates a PriorityBlockingQueue with the default initial capacity (11)
@@ -76,15 +76,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private void init(int capacity, int levels, Comparator<? super E> comparator) {
         this.binaryArray = new BinaryArrayElement[capacity];
-        this.tokenArray = new TokenArrayElement[levels];
         this.comparator = comparator;
         this.size = new AtomicInteger(0);
+        this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(capacity);
         initInternalArrays();
     }
 
     private void initInternalArrays() {
         initBinaryArray();
-        initTokenArray();
     }
 
     private void initBinaryArray() {
@@ -117,13 +116,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         binaryArray[i] = element;
     }
 
-    private void initTokenArray() {
-        for (int i = 0; i < tokenArray.length; i++) {
-            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, 1, comparator);
-            tokenArray[i] = element;
-        }
-    }
-
     /**
      * Inserts the specified element into this priority queue.
      * As the queue is unbounded, this method will never return false.
@@ -149,13 +141,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
 
-        //tokenArray[0].setValue(e);
-        //tokenArray[0].setPosition(0);
         TokenElement<E> tElement = new TokenElement<E>( e, 0, comparator);
 
         int level = 0;
         boolean success = false;
-        while (level < tokenArray.length && size.get() < binaryArray.length) {
+        while (level < treeHeight && size.get() < binaryArray.length) {
             tElement = localEnqueue(tElement);
             if (tElement.isCompleted) {
                 size.getAndIncrement();
@@ -231,7 +221,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         int level = 0;
         boolean done = false;
-        while (level < tokenArray.length && !done) {
+        while (level < treeHeight && !done) {
             tElement = localDequeue(tElement);
             level++;
         }
@@ -331,7 +321,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     public void clear() {
         initBinaryArray();
-        initTokenArray();
         size.set(0);
     }
 
@@ -699,8 +688,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         updateCapacities(0);
-        tokenArray = new TokenArrayElement[BinaryTreeUtils.convertSizeToNumLevels(newCapacity)];
-        initTokenArray();
+        this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(newCapacity);
     }
 
     private int getLevelOfIndex(int index) {
@@ -727,7 +715,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         binaryArray[i].setCapacity(capacity);
     }
 
-    @Override
+    @Override // TODO update to reflect new fields
     public boolean equals(Object o) {
         if (this == o) return true;
 
@@ -737,16 +725,16 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         return new EqualsBuilder()
                 .append(binaryArray, that.binaryArray)
-                .append(tokenArray, that.tokenArray)
+                .append(treeHeight, that.treeHeight)
                 .append(comparator, that.comparator)
                 .isEquals();
     }
 
-    @Override
+    @Override // TODO update to reflect new fields
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(binaryArray)
-                .append(tokenArray)
+                .append(treeHeight)
                 .append(comparator)
                 .toHashCode();
     }
