@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -13,37 +14,107 @@ import static org.junit.Assert.assertEquals;
  */
 public class PipelinedPriorityQueueTest_Put_SingleThread {
 
-    private PipelinedPriorityQueue<Integer> queue;
+    private PipelinedPriorityQueue<Integer> defaultQueue;
+    private PipelinedPriorityQueue<Integer> capacityQueue;
+    private PipelinedPriorityQueue<Integer> capacityComparatorQueue;
+    private int initialCapacity = 42;
 
     @Before
     public void before() {
-        queue = new PipelinedPriorityQueue<Integer>();
+        defaultQueue = new PipelinedPriorityQueue<Integer>();
+        capacityQueue = new PipelinedPriorityQueue<>(initialCapacity);
+        capacityComparatorQueue = new PipelinedPriorityQueue<>(initialCapacity, (o1, o2) -> {
+            int result = o1.compareTo(o2);
+            if (result == -1 ) return 1;
+            if (result == 1) return -1;
+            return result;
+        });
     }
 
     @Test
-    public void Put_DefaultEmptyQueue_CorrectEnqueue() throws InterruptedException {
-        queue.put(1);
+    public void Put_SingleNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        defaultQueue.put(1);
 
-        Object[] queueArray = queue.toArray();
+        Object[] queueArray = defaultQueue.toArray();
         assertEquals(1, queueArray.length);
         assertEquals(1, (int) (Integer) queueArray[0]);
     }
 
     @Test
-    public void Put_DefaultQueueMultipleItems_CorrectEnqueues() throws InterruptedException {
-        queue.put(1);
-        queue.put(0);
-        queue.put(3);
-        queue.put(2);
-        queue.put(5);
+    public void Put_SingleNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+           capacityQueue.put(1);
 
-        Object[] queueArray = queue.toArray();
+           Object[] queueArray = capacityQueue.toArray();
+           assertEquals(1, queueArray.length);
+           assertEquals(1, (int) (Integer) queueArray[0]);
+    }
+
+    @Test
+    public void Put_SingleNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        capacityComparatorQueue.put(1);
+
+        Object[] queueArray = capacityComparatorQueue.toArray();
+        assertEquals(1, queueArray.length);
+        assertEquals(1, (int) (Integer) queueArray[0]);
+    }
+
+    @Test
+    public void Put_InOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        defaultQueue.put(0);
+        defaultQueue.put(1);
+        defaultQueue.put(2);
+        defaultQueue.put(3);
+        defaultQueue.put(4);
+
+        Object[] queueArray = defaultQueue.toArray();
+        int[] expected = {0,1,2,3,4};
         assertEquals(5, queueArray.length);
-        assertEquals(0, (int)queue.remove());
-        assertEquals(1, (int)queue.remove());
-        assertEquals(2, (int)queue.remove());
-        assertEquals(3, (int)queue.remove());
-        assertEquals(5, (int)queue.remove());
+        putAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_InOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        capacityQueue.put(0);
+        capacityQueue.put(1);
+        capacityQueue.put(2);
+        capacityQueue.put(3);
+        capacityQueue.put(4);
+
+        Object[] queueArray = capacityQueue.toArray();
+        int[] expected = {0,1,2,3,4};
+        assertEquals(5, queueArray.length);
+        putAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_InOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        capacityComparatorQueue.put(4);
+        capacityComparatorQueue.put(3);
+        capacityComparatorQueue.put(2);
+        capacityComparatorQueue.put(1);
+        capacityComparatorQueue.put(0);
+
+        Object[] queueArray = capacityComparatorQueue.toArray();
+        int[] expected = {4,3,2,1,0};
+        assertEquals(5, queueArray.length);
+        putAll(queueArray, expected);
+    }
+
+    @Test
+    public void Put_DefaultQueueMultipleItems_CorrectEnqueues() throws InterruptedException {
+        defaultQueue.put(1);
+        defaultQueue.put(0);
+        defaultQueue.put(3);
+        defaultQueue.put(2);
+        defaultQueue.put(5);
+
+        Object[] queueArray = defaultQueue.toArray();
+        assertEquals(5, queueArray.length);
+        assertEquals(0, (int)defaultQueue.remove());
+        assertEquals(1, (int)defaultQueue.remove());
+        assertEquals(2, (int)defaultQueue.remove());
+        assertEquals(3, (int)defaultQueue.remove());
+        assertEquals(5, (int)defaultQueue.remove());
     }
 
     @Test
@@ -56,14 +127,14 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         shuffleArray(ordering);
 
         for (int i = 0; i < arraySize; i++) {
-            queue.put(ordering[i]);
+            defaultQueue.put(ordering[i]);
         }
 
-        Object[] queueArray = queue.toArray();
+        Object[] queueArray = defaultQueue.toArray();
         assertEquals(arraySize, queueArray.length);
         Arrays.sort(ordering);
         for (int i = 0; i < arraySize; i++) {
-            int removed = queue.remove();
+            int removed = defaultQueue.remove();
             assertEquals(ordering[i], removed);
         }
     }
@@ -76,6 +147,12 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     @Test
     public void Put_DefaultQueueReverseOrderedItems_CorrectEnqueues() throws InterruptedException {
 
+    }
+
+    private void putAll(Object[] input, int[] expected) {
+        for (int i = 0; i < input.length; i++) {
+            assertEquals(expected[i], (int) input[i]);
+        }
     }
 
     private void shuffleArray(int[] array) {
