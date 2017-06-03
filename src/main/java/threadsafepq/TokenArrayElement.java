@@ -39,6 +39,14 @@ public class TokenArrayElement<E> implements Serializable {
         NO_OPERATION
     }
 
+    public void lock() {
+        reentrantLock.lock();
+    }
+
+    public void unlock() {
+        reentrantLock.unlock();
+    }
+
     public Operation getOperation() {
         return operation;
     }
