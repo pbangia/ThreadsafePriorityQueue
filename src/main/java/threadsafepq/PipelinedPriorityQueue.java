@@ -583,11 +583,23 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
         binaryArray[position].decrementCapacity();
 
-        if (getLeftIndex(tElement.getPosition())<binaryArray.length && getLeft(position).getCapacity() > 0) {
-            tElement.setPosition(getLeftIndex(position));
-        } else if (getRightIndex(tElement.getPosition())<binaryArray.length){
-            tElement.setPosition(getRightIndex(position));
+        BinaryArrayElement<E> left = getLeft(position);
+        BinaryArrayElement<E> right = getRight(position);
+        if (left==null && right==null) return tElement;
+        int next;
+        if (left==null ) {
+            next = getRightIndex(position);
+        } else if (right==null) {
+            next=getLeftIndex(position);
+        } else if (left.getValue()==null){
+            next=getLeftIndex(position);
+        } else if (right.getValue()==null){
+            next=getRightIndex(position);
+        } else {
+            next = left.getCapacity() >= right.getCapacity()
+                    ? getLeftIndex(position) : getRightIndex(position);
         }
+        tElement.setPosition(next);
         return tElement;
     }
 

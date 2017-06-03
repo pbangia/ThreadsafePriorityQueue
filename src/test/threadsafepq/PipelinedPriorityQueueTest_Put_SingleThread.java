@@ -43,16 +43,16 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
         Object[] queueArray = queue.toArray();
         assertEquals(5, queueArray.length);
-        assertEquals(0, queueArray[0]);
-        assertEquals(1, queueArray[1]);
-        assertEquals(2, queueArray[2]);
-        assertEquals(3, queueArray[3]);
-        assertEquals(5, queueArray[4]);
+        assertEquals(0, (int)queue.remove());
+        assertEquals(1, (int)queue.remove());
+        assertEquals(2, (int)queue.remove());
+        assertEquals(3, (int)queue.remove());
+        assertEquals(5, (int)queue.remove());
     }
 
     @Test
     public void Put_DefaultQueueMultipleItems2_CorrectEnqueues() throws InterruptedException {
-        int arraySize = 13;
+        int arraySize = 1000;
         int[] ordering = new int[arraySize];
         for (int i = 0; i < arraySize; i++) {
             ordering[i] = i;
