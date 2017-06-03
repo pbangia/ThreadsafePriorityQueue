@@ -5,7 +5,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Taranpreet on 26/05/2017.
@@ -17,21 +16,13 @@ public class BinaryArrayElement<E> implements Serializable {
     private boolean isActive;
     private E value;
     private int capacity;
-    private BinaryArrayElement<E> leftChild;
-    private BinaryArrayElement<E> rightChild;
     private Comparator<? super E> comparator;
-    private final ReentrantLock reentrantLock;
 
-    public BinaryArrayElement(boolean isActive, E value, int capacity, BinaryArrayElement<E> leftChild,
-                              BinaryArrayElement<E> rightChild, Comparator<? super E> comparator,
-                              ReentrantLock reentrantLock) {
+    public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator) {
         this.isActive = isActive;
         this.value = value;
         this.capacity = capacity;
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
         this.comparator = comparator;
-        this.reentrantLock = reentrantLock;
     }
 
     public boolean isActive() {
@@ -55,52 +46,6 @@ public class BinaryArrayElement<E> implements Serializable {
 
     public void incrementCapacity() {
         this.capacity++;
-    }
-
-    public void lock() {
-        reentrantLock.lock();
-        if (leftChild != null) {
-            leftChild.lock();
-        }
-        if (rightChild != null) {
-            rightChild.lock();
-        }
-    }
-
-    public void unlock() {
-        reentrantLock.unlock();
-        if (leftChild != null) {
-            leftChild.unlock();
-        }
-        if (rightChild != null) {
-            rightChild.unlock();
-        }
-    }
-
-    public void unlockRightChild() {
-        if (rightChild != null) {
-            rightChild.unlock();
-        }
-    }
-
-    public void unlockLeftChild() {
-        if (leftChild != null) {
-            leftChild.unlock();
-        }
-    }
-
-    public void unlockNode() {
-        reentrantLock.unlock();
-    }
-
-    public void unlockButKeepLeft() {
-        unlockNode();
-        unlockRightChild();
-    }
-
-    public void unlockButKeepRight() {
-        unlockNode();
-        unlockLeftChild();
     }
 
     public void setActive(boolean active) {
