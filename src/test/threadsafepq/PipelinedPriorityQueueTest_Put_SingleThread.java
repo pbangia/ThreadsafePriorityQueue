@@ -21,7 +21,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_DefaultEmptyQueue_CorrectEnqueue() throws InterruptedException {
+    public void Put_SingleNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         queue.put(1);
 
         Object[] queueArray = queue.toArray();
