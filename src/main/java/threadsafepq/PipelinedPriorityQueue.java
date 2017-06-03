@@ -113,7 +113,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity,
-                comparator, new ReentrantLock(true));
+                leftChild, rightChild, comparator, new ReentrantLock(true));
         binaryArray[i] = element;
     }
 
@@ -142,7 +142,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
 
-        TokenElement<E> tElement = new TokenElement<E>( e, 0, comparator);
+        TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
 
         int level = 0;
         boolean success = false;
@@ -571,34 +571,50 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private TokenElement<E> localEnqueue(TokenElement<E> tElement) {
         int position = tElement.getPosition();
         E value = tElement.getValue();
-       if (!binaryArray[position].isActive()) {
-            binaryArray[position].setValue(value);
-            binaryArray[position].setActive(true);
-            binaryArray[position].decrementCapacity();
+        BinaryArrayElement<E> element = binaryArray[position];
+        element.lock();
+
+        if (!element.isActive()) {
+            element.setValue(value);
+            element.setActive(true);
+            element.decrementCapacity();
             tElement.isCompleted = true;
+            element.unlock();
             return tElement;
-        } else if (tElement.isGreaterThan(binaryArray[position].getValue())) {
+        } else if (tElement.isGreaterThan(element.getValue())) {
             E temp = tElement.getValue();
-            tElement.setValue(binaryArray[position].getValue());
-            binaryArray[position].setValue(temp);
+            tElement.setValue(element.getValue());
+            element.setValue(temp);
         }
-        binaryArray[position].decrementCapacity();
+
+        element.decrementCapacity();
 
         BinaryArrayElement<E> left = getLeft(position);
         BinaryArrayElement<E> right = getRight(position);
-        if (left==null && right==null) return tElement;
+        if (left == null && right == null) {
+            element.unlock();
+            return tElement;
+        }
+
         int next;
-        if (left==null ) {
+        if (left == null) {
             next = getRightIndex(position);
-        } else if (right==null) {
-            next=getLeftIndex(position);
-        } else if (left.getValue()==null){
-            next=getLeftIndex(position);
-        } else if (right.getValue()==null){
-            next=getRightIndex(position);
+            element.unlockButKeepRight();
+        } else if (right == null) {
+            next = getLeftIndex(position);
+            element.unlockButKeepLeft();
+        } else if (left.getValue() == null) {
+            next = getLeftIndex(position);
+            element.unlockButKeepLeft();
+        } else if (right.getValue() == null) {
+            next = getRightIndex(position);
+            element.unlockButKeepRight();
+        } else if (left.getCapacity() > right.getCapacity()) {
+            next = getLeftIndex(position);
+            element.unlockButKeepLeft();
         } else {
-            next = left.getCapacity() >= right.getCapacity()
-                    ? getLeftIndex(position) : getRightIndex(position);
+            next = getRightIndex(position);
+            element.unlockButKeepRight();
         }
         tElement.setPosition(next);
         return tElement;
