@@ -73,6 +73,16 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
+    public void Put_DefaultQueueOrderedItems_CorrectEnqueues() throws InterruptedException {
+
+    }
+
+    @Test
+    public void Put_DefaultQueueReverseOrderedItems_CorrectEnqueues() throws InterruptedException {
+        
+    }
+
+    @Test
     public void Put_DefaultQueueMultipleItems3_CorrectContains(){
 
         for (int i=0; i<6; i++) assertFalse(queue.contains(i));
