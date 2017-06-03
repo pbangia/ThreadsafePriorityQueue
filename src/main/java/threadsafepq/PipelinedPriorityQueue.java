@@ -142,26 +142,17 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
 
-        TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
-
-        int level = 0;
-        boolean success = false;
-        while (level < treeHeight && size.get() < binaryArray.length) {
-            tElement = localEnqueue(tElement);
-            if (tElement.isCompleted) {
-                size.getAndIncrement();
-                success = true;
-                break;
-            } else {
-                level++;
-            }
-        }
-        if (!success) {
+        binaryArray[0].lock();
+        if (binaryArray[0].getCapacity() < 1) {
             resize();
-            offer(e);
         }
-
-        return success;
+        binaryArray[0].unlock();
+        TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
+        while (!tElement.isCompleted) {
+            tElement = localEnqueue(tElement);
+        }
+        size.getAndIncrement();
+        return true;
     }
 
     /**
