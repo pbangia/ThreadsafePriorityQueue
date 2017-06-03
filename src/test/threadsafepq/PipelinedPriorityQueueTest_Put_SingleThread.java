@@ -208,6 +208,72 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         testPutWithInputList(capacityComparatorQueue, inputList, outputList);
     }
 
+    @Test
+    public void Put_ReverseOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = inputList.length - i - 1;
+            outputList[i] = i;
+        }
+
+        testPutWithInputList(defaultQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = inputList.length - i - 1;
+            outputList[i] = i;
+        }
+
+        testPutWithInputList(capacityQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_ReverseOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
+        int[] outputList = new int[inputList.length];
+        for (int i = 0; i < inputList.length; i++) {
+            inputList[i] = i;
+            outputList[i] = inputList.length - i - 1;
+        }
+
+        testPutWithInputList(capacityComparatorQueue, inputList, outputList);
+    }
+
+    // Random Order tests
+    @Test
+    public void Put_RandomOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {5, 4, 3, 2, 1};
+        int[] outputList = {1, 2, 3, 4, 5};
+
+        shuffleArray(inputList);
+        testPutWithInputList(defaultQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_RandomOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {5, 4, 3, 2, 1};
+        int[] outputList = {1, 2, 3, 4, 5};
+
+        shuffleArray(inputList);
+        testPutWithInputList(capacityQueue, inputList, outputList);
+    }
+
+    @Test
+    public void Put_RandomOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        int[] inputList = {1, 2, 3, 4, 5};
+        int[] outputList = {5, 4, 3, 2, 1};
+
+        shuffleArray(inputList);
+        testPutWithInputList(capacityComparatorQueue, inputList, outputList);
+    }
+
+
+
     private void testPutWithInputList(PipelinedPriorityQueue<Integer> queue,
                                       int[] inputList, int[] expectedOutput) {
         for (int i : inputList) {
