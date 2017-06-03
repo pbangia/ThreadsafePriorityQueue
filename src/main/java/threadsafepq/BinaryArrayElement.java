@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Taranpreet on 26/05/2017.
@@ -17,12 +18,14 @@ public class BinaryArrayElement<E> implements Serializable {
     private E value;
     private int capacity;
     private Comparator<? super E> comparator;
+    private final ReentrantLock reentrantLock;
 
-    public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator) {
+    public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator, ReentrantLock reentrantLock) {
         this.isActive = isActive;
         this.value = value;
         this.capacity = capacity;
         this.comparator = comparator;
+        this.reentrantLock = reentrantLock;
     }
 
     public boolean isActive() {
@@ -98,5 +101,13 @@ public class BinaryArrayElement<E> implements Serializable {
 
     public void incrementCapacity() {
         this.capacity++;
+    }
+
+    public void lock() {
+        reentrantLock.lock();
+    }
+
+    public void unlock() {
+        reentrantLock.unlock();
     }
 }

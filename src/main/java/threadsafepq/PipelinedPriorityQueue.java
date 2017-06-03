@@ -112,7 +112,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             capacity += rightChild.getCapacity();
         }
 
-        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity, comparator);
+        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity,
+                comparator, new ReentrantLock(true));
         binaryArray[i] = element;
     }
 
