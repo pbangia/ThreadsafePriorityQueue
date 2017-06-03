@@ -68,6 +68,16 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
         }
     }
 
+    @Test
+    public void Put_DefaultQueueOrderedItems_CorrectEnqueues() throws InterruptedException {
+
+    }
+
+    @Test
+    public void Put_DefaultQueueReverseOrderedItems_CorrectEnqueues() throws InterruptedException {
+
+    }
+
     private void shuffleArray(int[] array) {
         int index;
         Random random = new Random();
