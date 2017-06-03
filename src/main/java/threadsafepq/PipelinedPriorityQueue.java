@@ -19,6 +19,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
 
+    private TokenArrayElement<E>[] tokenArray;
     private BinaryArrayElement<E>[] binaryArray;
     private Comparator<? super E> comparator;
     private AtomicInteger size;
@@ -78,12 +79,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.binaryArray = new BinaryArrayElement[capacity];
         this.comparator = comparator;
         this.size = new AtomicInteger(0);
+        this.tokenArray = new TokenArrayElement[levels];
         this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(capacity);
         initInternalArrays();
     }
 
     private void initInternalArrays() {
         initBinaryArray();
+        initTokenArray();
     }
 
     private void initBinaryArray() {
@@ -117,6 +120,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         binaryArray[i] = element;
     }
 
+    private void initTokenArray() {
+        for (int i = 0; i < tokenArray.length; i++) {
+            TokenArrayElement<E> element = new TokenArrayElement<E>(TokenArrayElement.Operation.NO_OPERATION, null, 1, comparator);
+            tokenArray[i] = element;
+        }
+    }
+
+
     /**
      * Inserts the specified element into this priority queue.
      * As the queue is unbounded, this method will never return false.
@@ -141,17 +152,24 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
+        tokenArray[0].setValue(e);
+        tokenArray[0].setPosition(0);
 
-        binaryArray[0].lock();
+        //binaryArray[0].lock();
         if (binaryArray[0].getCapacity() < 1) {
             resize();
         }
-        binaryArray[0].unlock();
-        TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
-        while (!tElement.isCompleted()) {
-            tElement = localEnqueue(tElement);
+        //binaryArray[0].unlock();
+        int level=0;
+        while (level < tokenArray.length && size.get() < binaryArray.length) {
+            boolean result = localEnqueue(level);
+            if (result) {
+                size.getAndIncrement();
+                break;
+            }
+            level++;
         }
-        size.getAndIncrement();
+
         return true;
     }
 
@@ -559,56 +577,59 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return false;
     }
 
-    private TokenElement<E> localEnqueue(TokenElement<E> tElement) {
-        int position = tElement.getPosition();
-        E value = tElement.getValue();
+    private boolean localEnqueue(int i) {
+        int position = tokenArray[i].getPosition();
+        E value = tokenArray[i].getValue();
+
         BinaryArrayElement<E> element = binaryArray[position];
-        element.lock();
+        //element.lock();
 
         if (!element.isActive()) {
             element.setValue(value);
             element.setActive(true);
             element.decrementCapacity();
-            tElement.setCompleted(true);
-            element.unlock();
-            return tElement;
-        } else if (tElement.isGreaterThan(element.getValue())) {
-            E temp = tElement.getValue();
-            tElement.setValue(element.getValue());
+           // element.unlock();
+            return true;
+        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
+            E temp = tokenArray[i].getValue();
+            tokenArray[i].setValue(binaryArray[position].getValue());
             element.setValue(temp);
         }
 
         element.decrementCapacity();
+        tokenArray[i + 1].setValue(tokenArray[i].getValue());
+        tokenArray[i].setValue(null);
 
         BinaryArrayElement<E> left = getLeft(position);
         BinaryArrayElement<E> right = getRight(position);
         if (left == null && right == null) {
             element.unlock();
-            return tElement;
+            return true;//check
         }
 
         int next;
         if (left == null) {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
+            //element.unlockButKeepRight();
         } else if (right == null) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
+            //element.unlockButKeepLeft();
         } else if (left.getValue() == null) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
+            //element.unlockButKeepLeft();
         } else if (right.getValue() == null) {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
+            //element.unlockButKeepRight();
         } else if (left.getCapacity() > right.getCapacity()) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
+            //element.unlockButKeepLeft();
         } else {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
+            //element.unlockButKeepRight();
         }
-        tElement.setPosition(next);
-        return tElement;
+        tokenArray[i + 1].setPosition(next);
+
+        return false;
     }
 
     private TokenElement<E> localDequeue(TokenElement<E> tElement) {
@@ -708,7 +729,18 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         updateCapacities(0);
+        //resize token array same as current
         this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(newCapacity);
+
+        TokenArrayElement<E>[] temp = new TokenArrayElement[treeHeight];
+        for (int i=0; i<tokenArray.length; i++){
+            temp[i] = tokenArray[i];
+        }
+
+        for (int i=tokenArray.length; i<treeHeight; i++){
+            temp[i] = new TokenArrayElement(null, null, 1, comparator);
+        }
+        tokenArray = temp;
     }
 
     private int getLevelOfIndex(int index) {
