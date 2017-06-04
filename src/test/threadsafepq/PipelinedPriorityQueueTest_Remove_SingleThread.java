@@ -13,12 +13,11 @@ import static org.junit.Assert.*;
  */
 public class PipelinedPriorityQueueTest_Remove_SingleThread {
 
+    private static final int DEFAULT_INITIAL_CAPACITY = 11;
+    private static final int CUSTOM_INITIAL_CAPACITY = 42;
     private PipelinedPriorityQueue<Integer> defaultQueue;
     private PipelinedPriorityQueue<Integer> capacityQueue;
     private PipelinedPriorityQueue<Integer> capacityComparatorQueue;
-
-    private static final int DEFAULT_INITIAL_CAPACITY = 11;
-    private static final int CUSTOM_INITIAL_CAPACITY = 42;
 
     @Before
     public void before() {
@@ -30,6 +29,21 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
             if (actual == 1) return -1;
             return 0;
         });
+    }
+
+    @Test
+    public void Remove_NoItemsDefaultQueue_ReturnsNull() {
+        assertNull(defaultQueue.remove());
+    }
+
+    @Test
+    public void Remove_NoItemsCapacityQueue_ReturnsNull() {
+        assertNull(capacityQueue.remove());
+    }
+
+    @Test
+    public void Remove_NoItemsCapacityComparatorQueue_ReturnsNull() {
+        assertNull(capacityComparatorQueue.remove());
     }
 
     @Test
