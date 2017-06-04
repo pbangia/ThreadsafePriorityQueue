@@ -18,8 +18,8 @@ public class PipelinedPQTest_Put_Parallel {
     private PriorityBlockingQueue<Integer> blockingQueue;
     @Before
     public void before() {
-        queue = new PipelinedPriorityQueue<>(400);
-        blockingQueue = new PriorityBlockingQueue<>(400);
+        queue = new PipelinedPriorityQueue<>(100000);
+        blockingQueue = new PriorityBlockingQueue<>();
     }
 
     @Test
@@ -138,16 +138,17 @@ public class PipelinedPQTest_Put_Parallel {
     }
 
     @Test
-    public void Put_Parallel2_Correct(){
+    public void Put_Parallel3_Correct(){
+        long start = System.currentTimeMillis();
         Thread t1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 try { Thread.sleep(1); } catch (Exception e) {}
-                for (int i=200; i<300; i++){
+                for (int i=20000; i<30000; i++){
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
                     }
-                    queue.put(i);
+                    queue.put(getRandInt());
                 }
             }
         });
@@ -155,8 +156,8 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=100; i<200; i++){
-                    queue.put(i);
+                for (int i=10000; i<20000; i++){
+                    queue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
                     }
@@ -167,8 +168,8 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=300; i<400; i++){
-                    queue.put(i);
+                for (int i=30000; i<40000; i++){
+                    queue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
                     }
@@ -179,10 +180,160 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t4 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<100; i++){
-                    queue.put(i);
+                for (int i=0; i<10000; i++){
+                    queue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+        Thread t5 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<10000; i++){
+                    queue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t6 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<10000; i++){
+                    queue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t7 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { Thread.sleep(20); } catch (Exception e){}
+                for (int i=0; i<10000; i++){
+                    queue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        t6.start();
+        t7.start();
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+            t5.join();
+            t6.join();
+            t7.join();
+
+        } catch (InterruptedException ex){}
+        long end = System.currentTimeMillis();
+        long elapsed = (end-start);
+        System.out.println("PipelinedPriorityQueue time: "+elapsed);
+        for (int i = 0; i<400; i++){
+            int removed = queue.poll();
+            //assertEquals("Poll("+i+")",i, removed);
+        }
+
+    }
+
+    @Test
+    public void Put_Parallel2_Correct(){
+        long start = System.currentTimeMillis();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { Thread.sleep(1); } catch (Exception e) {}
+                for (int i=20000; i<30000; i++){
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                    blockingQueue.put(getRandInt());
+                }
+            }
+        });
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=10000; i<20000; i++){
+                    blockingQueue.put(getRandInt());
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=30000; i<40000; i++){
+                    blockingQueue.put(getRandInt());
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<10000; i++){
+                    blockingQueue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t5 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<10000; i++){
+                    blockingQueue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t6 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<10000; i++){
+                    blockingQueue.put(getRandInt());
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t7 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { Thread.sleep(20); } catch (Exception e){}
+                for (int i=0; i<10000; i++){
+                    blockingQueue.poll();
+                    if (i%3==0) {
                     }
                 }
             }
@@ -192,18 +343,29 @@ public class PipelinedPQTest_Put_Parallel {
         t2.start();
         t3.start();
         t4.start();
+        t5.start();
+        t6.start();
+        t7.start();
         try {
             t1.join();
             t2.join();
             t3.join();
             t4.join();
+            t5.join();
+            t6.join();
+            t7.join();
         } catch (InterruptedException ex){}
-
+        long end = System.currentTimeMillis();
+        long elapsed = (end-start);
+        System.out.println("PriorityBlockingQueue time: "+elapsed);
         for (int i = 0; i<400; i++){
-            int removed = queue.poll();
-            assertEquals("Poll("+i+")",i, removed);
+            int removed = blockingQueue.poll();
+//            assertEquals("Poll("+i+")",i, removed);
         }
+    }
 
+    private int getRandInt() {
+        return (int )(Math.random() * 5000 + 1);
     }
 
 }
