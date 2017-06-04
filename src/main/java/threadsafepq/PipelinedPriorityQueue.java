@@ -396,7 +396,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @return an array containing all of the elements in this collection
      */
-    public synchronized Object[] toArray() {
+    public Object[] toArray() {
+        lockAllLevels();
         Object[] result = new Object[size.get()];
         int taken = 0;
         int runner = 0;
@@ -409,9 +410,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         if (taken != size.get()) {
-            // TODO something went wrong
+            throw new IllegalStateException("toArray unsuccessful");
         }
-
+        unlockAllLevels();
         return result;
     }
 
@@ -426,6 +427,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return an array containing all of the elements in this queue
      */
     public <T> T[] toArray(T[] a) {
+        lockAllLevels();
         if (a.length < size.get()) {
             return (T[])toArray();
         }
@@ -444,6 +446,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             a[taken] = null;
         }
 
+        if (taken != size.get()) {
+            throw new IllegalStateException("toArray unsuccessful");
+        }
+
+        unlockAllLevels();
         return a;
     }
 
@@ -493,11 +500,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return <tt>true</tt> if this queue contains the specified element
      */
     public boolean contains(Object o) {
-
+        lockAllLevels();
         for (BinaryArrayElement e : binaryArray) {
             if (e.getValue() == null) continue;
             if (e.getValue().equals(o)) return true;
         }
+        unlockAllLevels();
         return false;
     }
 
@@ -510,6 +518,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws NullPointerException if the specified collection contains one or more null elements and this collection does not permit null elements
      */
     public boolean containsAll(Collection<?> c) {
+        lockAllLevels();
         if (c.size() > size.get()) return false;
 
         HashSet set1 = new HashSet(c);
@@ -518,6 +527,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             if (e.getValue() == null) continue;
             if (set1.contains(e.getValue())) count++;
         }
+        unlockAllLevels();
         return set1.size() == count;
     }
 
@@ -535,12 +545,13 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws IllegalArgumentException      if some property of an element of the specified collection prevents it from being added to this collection
      * @throws IllegalStateException         if not all the elements can be added at this time due to insertion restrictions
      * @see #add(Object)
+     * @return true
      */
     public boolean addAll(Collection<? extends E> c) {
         for (E e : c) {
             add(e);
         }
-        return false;
+        return true;
     }
 
     /**
@@ -778,6 +789,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         binaryArray[i].setCapacity(capacity);
+    }
+
+    private void lockAllLevels() {
+        for (TokenArrayElement tae : tokenArray) tae.lock();
+    }
+
+    private void unlockAllLevels() {
+        for (TokenArrayElement tae : tokenArray) tae.unlock();
     }
 
     @Override // TODO update to reflect new fields
