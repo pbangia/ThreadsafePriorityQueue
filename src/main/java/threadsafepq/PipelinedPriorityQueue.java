@@ -19,8 +19,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
 
-    private final Lock lock = new ReentrantLock();
-    private final Condition notEmpty = lock.newCondition();
+    private final Lock notEmptyLock = new ReentrantLock();
+    private final Condition notEmptyCondition = notEmptyLock.newCondition();
     private TokenArrayElement<E>[] tokenArray;
     private BinaryArrayElement<E>[] binaryArray;
     private Comparator<? super E> comparator;
@@ -169,7 +169,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         while (level < tokenArray.length) {
             boolean result = localEnqueue(level);
             if (result) {
-                size.getAndIncrement();
+                incrementSize();
                 tokenArray[level].unlock();
                 if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
                 break;
@@ -251,7 +251,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         while (level < tokenArray.length) {
             boolean result = localDequeue(level);
             if (result) {
-                size.decrementAndGet();
+                decrementSize();
                 tokenArray[level].unlock();
                 if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
                 break;
@@ -270,13 +270,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws InterruptedException if interrupted while waiting
      */
     public E take() throws InterruptedException {
+        notEmptyLock.lock();
         while (size.get() == 0) {
-            notEmpty.await();
-            // TODO update other methods to cause the signal for this await()
+            notEmptyCondition.await();
         }
 
         E head = poll();
         assert head != null;
+        notEmptyLock.unlock();
         return head;
     }
 
@@ -817,6 +818,18 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private void unlockAllLevels() {
         for (TokenArrayElement tae : tokenArray) tae.unlock();
+    }
+
+    private void incrementSize() {
+        if (size.incrementAndGet() > 1) {
+            notEmptyLock.lock();
+            notEmptyCondition.signal();
+            notEmptyLock.unlock();
+        }
+    }
+
+    private void decrementSize() {
+        size.decrementAndGet();
     }
 
     @Override
