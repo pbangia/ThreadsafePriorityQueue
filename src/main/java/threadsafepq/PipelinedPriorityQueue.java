@@ -153,22 +153,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
+        tokenArray[0].lock();
+        if (tokenArray.length > 1) tokenArray[1].lock();
         tokenArray[0].setValue(e);
         tokenArray[0].setPosition(0);
 
-        //binaryArray[0].lock();
         if (binaryArray[0].getCapacity() < 1) {
             resize();
         }
-        //binaryArray[0].unlock();
+
         int level=0;
         while (level < tokenArray.length && size.get() < binaryArray.length) {
             boolean result = localEnqueue(level);
             if (result) {
                 size.getAndIncrement();
+
                 break;
             }
+            tokenArray[level].unlock();
             level++;
+            if (level + 1 < tokenArray.length) tokenArray[level + 1].lock();
         }
 
         return true;
@@ -713,6 +717,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * Increases the capacity of the array.
      */
     private void resize() {
+        int tokenArrayLength = tokenArray.length;
+        for (int i = 0; i < tokenArrayLength; i ++) {
+            tokenArray[i].lock();
+        }
+
         int oldCapacity = binaryArray.length;
         // Double size if small; else grow by 50%
         int newCapacity = ((oldCapacity < 64) ?
@@ -741,6 +750,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             temp[i] = new TokenArrayElement(null, null, 1, comparator, new ReentrantLock(true));
         }
         tokenArray = temp;
+
+        for (int i = 2; i < tokenArrayLength; i++) {
+            tokenArray[i].unlock();
+        }
     }
 
     private int getLevelOfIndex(int index) {
