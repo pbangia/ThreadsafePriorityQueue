@@ -221,10 +221,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws NoSuchElementException if this queue is empty
      */
     public E element() {
+        tokenArray[0].lock();
         if (size.get() == 0) {
+            tokenArray[0].unlock();
             throw new NoSuchElementException("Queue is empty");
         }
-        return peek();
+        E value = peek();
+        tokenArray[0].unlock();
+        return value;
     }
 
     /**
