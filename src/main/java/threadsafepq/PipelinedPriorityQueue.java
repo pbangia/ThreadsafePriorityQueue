@@ -381,7 +381,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws IllegalArgumentException      if the specified collection is this queue, or some property of an element of this queue prevents it from being added to the specified collection
      */
     public int drainTo(Collection<? super E> c) {
-        return 0;
+        if (c == null)
+            throw new NullPointerException();
+        if (c == this)
+            throw new IllegalArgumentException();
+        return drainTo(c, c.size());
     }
 
     /**
