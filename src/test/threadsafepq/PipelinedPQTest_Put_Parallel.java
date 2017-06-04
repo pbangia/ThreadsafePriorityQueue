@@ -18,7 +18,6 @@ public class PipelinedPQTest_Put_Parallel {
     private PriorityBlockingQueue<Integer> blockingQueue;
     @Before
     public void before() {
-        queue = new PipelinedPriorityQueue<>(100000);
         blockingQueue = new PriorityBlockingQueue<>();
     }
 
@@ -139,12 +138,13 @@ public class PipelinedPQTest_Put_Parallel {
 
     @Test
     public void Put_Parallel3_Correct(){
+        queue = new PipelinedPriorityQueue<>(1_500_000);
         long start = System.currentTimeMillis();
         Thread t1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 try { Thread.sleep(1); } catch (Exception e) {}
-                for (int i=20000; i<30000; i++){
+                for (int i=0; i<150_000; i++){
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
                     }
@@ -156,7 +156,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=10000; i<20000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -168,7 +168,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=30000; i<40000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -180,7 +180,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t4 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -191,7 +191,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t5 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -203,7 +203,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t6 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -216,7 +216,7 @@ public class PipelinedPQTest_Put_Parallel {
             @Override
             public void run() {
                 try { Thread.sleep(20); } catch (Exception e){}
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     queue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -258,7 +258,7 @@ public class PipelinedPQTest_Put_Parallel {
             @Override
             public void run() {
                 try { Thread.sleep(1); } catch (Exception e) {}
-                for (int i=20000; i<30000; i++){
+                for (int i=0; i<150_000; i++){
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
                     }
@@ -270,7 +270,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=10000; i<20000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -282,7 +282,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=30000; i<40000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.put(getRandInt());
                     if (i%2==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -294,7 +294,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t4 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -306,7 +306,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t5 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -318,7 +318,7 @@ public class PipelinedPQTest_Put_Parallel {
         Thread t6 = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.put(getRandInt());
                     if (i%3==0) {
                         try { Thread.sleep(1); } catch (Exception e) {}
@@ -331,7 +331,7 @@ public class PipelinedPQTest_Put_Parallel {
             @Override
             public void run() {
                 try { Thread.sleep(20); } catch (Exception e){}
-                for (int i=0; i<10000; i++){
+                for (int i=0; i<150_000; i++){
                     blockingQueue.poll();
                     if (i%3==0) {
                     }
