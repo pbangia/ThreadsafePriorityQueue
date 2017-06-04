@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -31,17 +32,17 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
         });
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsDefaultQueue_ReturnsNull() {
         assertNull(defaultQueue.remove());
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsCapacityQueue_ReturnsNull() {
         assertNull(capacityQueue.remove());
     }
 
-    @Test
+    @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsCapacityComparatorQueue_ReturnsNull() {
         assertNull(capacityComparatorQueue.remove());
     }
