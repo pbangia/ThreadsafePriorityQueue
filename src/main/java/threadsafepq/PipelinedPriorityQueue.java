@@ -502,28 +502,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return an iterator over the elements in this queue
      */
     public Iterator<E> iterator() {
-        // TODO change this to match the documentation specifications
-        return new Iterator<E>() {
-            public boolean hasNext() {
-                return peek() != null;
-            }
-
-            public E next() {
-                if (peek() == null) throw new NoSuchElementException();
-                boolean taken = false;
-                E e = null;
-                while (!taken) {
-                    try {
-                        e = take();
-                    } catch (InterruptedException ex) {
-                    }
-                }
-                return e;
-            }
-
-            public void remove() {
-            }
-        };
+        return new PipelinedIterator<>();
     }
 
     /**
@@ -885,5 +864,19 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public String toString() {
         // TODO
         return null;
+    }
+
+    private class PipelinedIterator<T> implements Iterator<T> {
+
+        @Override
+        public boolean hasNext() {
+            return peek() != null;
+        }
+
+        @Override
+        public T next() {
+            if (peek() == null) throw new NoSuchElementException();
+            return (T) poll();
+        }
     }
 }
