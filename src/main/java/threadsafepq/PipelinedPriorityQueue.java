@@ -207,7 +207,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E peek() {
-        return binaryArray[0].getValue();
+        tokenArray[0].lock();
+        E value = binaryArray[0].getValue();
+        tokenArray[0].unlock();
+        return value;
     }
 
     /**
