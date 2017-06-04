@@ -300,11 +300,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue
      */
     public E remove() {
-        if (size.get() != 0) {
-            return poll();
+        tokenArray[0].lock();
+        if (size.get() == 0) {
+            tokenArray[0].unlock();
+            throw new NoSuchElementException("Queue is empty");
         } else {
-            // TODO wait
-            return null;
+            E value = poll();
+            tokenArray[0].unlock();
+            return value;
         }
     }
 
