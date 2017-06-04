@@ -163,7 +163,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         int level=0;
-        while (level < tokenArray.length && size.get() < binaryArray.length) {
+        while (level < tokenArray.length) {
             boolean result = localEnqueue(level);
             if (result) {
                 size.getAndIncrement();
@@ -230,19 +230,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E poll() {
+        tokenArray[0].lock();
+        if (tokenArray.length > 1) tokenArray[1].lock();
         E value = binaryArray[0].getValue();
         binaryArray[0].setActive(false);
         binaryArray[0].incrementCapacity();
         tokenArray[0].setPosition(0);
 
         int level = 0;
-        boolean done = false;
-        while (level < tokenArray.length && !done) {
-            done = localDequeue(level);
+        while (level < tokenArray.length) {
+            boolean result = localDequeue(level);
+            if (result) {
+                size.decrementAndGet();
+                tokenArray[level].unlock();
+                if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
+                break;
+            }
+            tokenArray[level].unlock();
             level++;
+            if (level + 1 < tokenArray.length) tokenArray[level + 1].lock();
         }
-
-        size.decrementAndGet();
         return value;
     }
 
@@ -588,13 +595,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         E value = tokenArray[i].getValue();
 
         BinaryArrayElement<E> element = binaryArray[position];
-        //element.lock();
 
         if (!element.isActive()) {
             element.setValue(value);
             element.setActive(true);
             element.decrementCapacity();
-           // element.unlock();
             return true;
         } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
             E temp = tokenArray[i].getValue();
@@ -615,22 +620,16 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         int next;
         if (left == null) {
             next = getRightIndex(position);
-            //element.unlockButKeepRight();
         } else if (right == null) {
             next = getLeftIndex(position);
-            //element.unlockButKeepLeft();
         } else if (left.getValue() == null) {
             next = getLeftIndex(position);
-            //element.unlockButKeepLeft();
         } else if (right.getValue() == null) {
             next = getRightIndex(position);
-            //element.unlockButKeepRight();
         } else if (left.getCapacity() > right.getCapacity()) {
             next = getLeftIndex(position);
-            //element.unlockButKeepLeft();
         } else {
             next = getRightIndex(position);
-            //element.unlockButKeepRight();
         }
         tokenArray[i + 1].setPosition(next);
 
