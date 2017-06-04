@@ -5,7 +5,7 @@ import threadsafepq.PipelinedPriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueue_Clear extends PipelinedPriorityQueueTest {
+public class PipelinedPriorityQueueTest_Clear extends PipelinedPriorityQueueTest {
 
     @Test
     public void Clear_DefaultQueueEmptyQueueThenClear_ClearsAllElements() {
