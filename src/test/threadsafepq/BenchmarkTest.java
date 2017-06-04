@@ -45,9 +45,9 @@ public class BenchmarkTest {
     @Test
     public void Put_PipelinedTiming() {
         long total=0;
-        for (int j=0; j<10; j++) {
+        for (int j=0; j<1; j++) {
             long start = System.currentTimeMillis();
-            for (int i = 0; i < 100000; i++) {
+            for (int i = 0; i < 10000; i++) {
                 pipelinedQ.put(i);
             }
             long end = System.currentTimeMillis();
