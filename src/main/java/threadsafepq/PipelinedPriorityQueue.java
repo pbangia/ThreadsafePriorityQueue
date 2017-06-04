@@ -357,8 +357,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * The collection will be empty after this method returns.
      */
     public void clear() {
+        tokenArray[0].lock();
         initBinaryArray();
+        initTokenArray();
         size.set(0);
+        tokenArray[0].unlock();
     }
 
     /**
