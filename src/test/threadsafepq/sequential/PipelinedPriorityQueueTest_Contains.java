@@ -1,6 +1,7 @@
-package threadsafepq;
+package threadsafepq.sequential;
 
 import org.junit.Test;
+import threadsafepq.PipelinedPriorityQueue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Taranpreet on 3/06/2017.
  */
-public class PipelinedPriorityQueueTest_Contains_SingleThread extends PipelinedPriorityQueueTest {
+public class PipelinedPriorityQueueTest_Contains extends PipelinedPriorityQueueTest {
 
     @Test
     public void Contains_DefaultQueueEmpty_ReturnsFalse() {

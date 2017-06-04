@@ -1,10 +1,11 @@
-package threadsafepq;
+package threadsafepq.sequential;
 
 import org.junit.Test;
+import threadsafepq.PipelinedPriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueueTest_Size_SingleThread extends PipelinedPriorityQueueTest {
+public class PipelinedPriorityQueueTest_Size extends PipelinedPriorityQueueTest {
 
     @Test
     public void Size_DefaultQueueEmpty_ReturnsZero() {

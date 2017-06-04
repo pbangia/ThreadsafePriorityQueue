@@ -1,10 +1,11 @@
-package threadsafepq;
+package threadsafepq.sequential;
 
 import org.junit.Test;
+import threadsafepq.PipelinedPriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueue_Clear_SingleThread extends PipelinedPriorityQueueTest {
+public class PipelinedPriorityQueue_Clear extends PipelinedPriorityQueueTest {
 
     @Test
     public void Clear_DefaultQueueEmptyQueueThenClear_ClearsAllElements() {

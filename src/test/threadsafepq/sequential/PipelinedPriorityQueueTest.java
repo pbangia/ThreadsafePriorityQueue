@@ -1,6 +1,7 @@
-package threadsafepq;
+package threadsafepq.sequential;
 
 import org.junit.Before;
+import threadsafepq.PipelinedPriorityQueue;
 
 public abstract class PipelinedPriorityQueueTest {
 
