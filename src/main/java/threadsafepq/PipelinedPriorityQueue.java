@@ -289,9 +289,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @param unit    a TimeUnit determining how to interpret the timeout parameter
      * @return the head of this queue, or null if the specified waiting time elapses before an element is available
      * @throws InterruptedException if interrupted while waiting
+     * @throws UnsupportedOperationException if this collection does not support poll with timeout
      */
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
