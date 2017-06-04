@@ -18,14 +18,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
-
+    private final Lock lock = new ReentrantLock();
+    private final Condition notEmpty = lock.newCondition();
     private TokenArrayElement<E>[] tokenArray;
     private BinaryArrayElement<E>[] binaryArray;
     private Comparator<? super E> comparator;
     private AtomicInteger size;
-
-    private final Lock lock = new ReentrantLock();
-    private final Condition notEmpty = lock.newCondition();
     private int treeHeight;
 
     /**
@@ -528,14 +526,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         lockAllLevels();
         if (c.size() > size.get()) return false;
 
-        HashSet set1 = new HashSet(c);
+        Set<E> inputSet = new HashSet(c);
         int count = 0;
         for (BinaryArrayElement e : binaryArray) {
             if (e.getValue() == null) continue;
-            if (set1.contains(e.getValue())) count++;
+            if (inputSet.contains(e.getValue())) count++;
         }
         unlockAllLevels();
-        return set1.size() == count;
+        return inputSet.size() == count;
     }
 
     /**
