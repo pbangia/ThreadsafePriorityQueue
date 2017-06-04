@@ -1,6 +1,5 @@
 package threadsafepq;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -8,22 +7,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueueTest_Add_SingleThread {
-
-    private static final int DEFAULT_INITIAL_CAPACITY = 11;
-    private static final int CUSTOM_INITIAL_CAPACITY = 42;
-    private PipelinedPriorityQueue<Integer> defaultQueue;
-    private PipelinedPriorityQueue<Integer> capacityQueue;
-    private PipelinedPriorityQueue<Integer> capacityComparatorQueue;
-
-    @Before
-    public void before() {
-        defaultQueue = new PipelinedPriorityQueue<Integer>();
-        capacityQueue = new PipelinedPriorityQueue<>(CUSTOM_INITIAL_CAPACITY);
-        capacityComparatorQueue = new PipelinedPriorityQueue<>(CUSTOM_INITIAL_CAPACITY, (o1, o2) -> {
-            return o1.compareTo(o2);
-        });
-    }
+public class PipelinedPriorityQueueTest_Add_SingleThread extends PipelinedPriorityQueueTest {
 
     @Test
     public void Add_SingleNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {

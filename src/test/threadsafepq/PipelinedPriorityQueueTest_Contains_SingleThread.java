@@ -1,6 +1,5 @@
 package threadsafepq;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,25 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Taranpreet on 3/06/2017.
  */
-public class PipelinedPriorityQueueTest_Contains_SingleThread {
-
-    private static final int DEFAULT_INITIAL_CAPACITY = 11;
-    private static final int CUSTOM_INITIAL_CAPACITY = 42;
-    private PipelinedPriorityQueue<Integer> defaultQueue;
-    private PipelinedPriorityQueue<Integer> capacityQueue;
-    private PipelinedPriorityQueue<Integer> capacityComparatorQueue;
-
-    @Before
-    public void before() {
-        defaultQueue = new PipelinedPriorityQueue<>();
-        capacityQueue = new PipelinedPriorityQueue<>(CUSTOM_INITIAL_CAPACITY);
-        capacityComparatorQueue = new PipelinedPriorityQueue<>(CUSTOM_INITIAL_CAPACITY, (o1, o2) -> {
-            int result = o1.compareTo(o2);
-            if (result == -1) return 1;
-            if (result == 1) return -1;
-            return result;
-        });
-    }
+public class PipelinedPriorityQueueTest_Contains_SingleThread extends PipelinedPriorityQueueTest {
 
     @Test
     public void Contains_DefaultQueueEmpty_ReturnsFalse() {
