@@ -167,7 +167,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             boolean result = localEnqueue(level);
             if (result) {
                 size.getAndIncrement();
-
+                tokenArray[level].unlock();
+                if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
                 break;
             }
             tokenArray[level].unlock();

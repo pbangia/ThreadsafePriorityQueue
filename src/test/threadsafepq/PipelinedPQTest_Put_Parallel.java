@@ -56,7 +56,7 @@ public class PipelinedPQTest_Put_Parallel {
             @Override
             public void run() {
                 try { Thread.sleep(2); } catch (Exception e) {}
-                System.out.println("Thread 2: put "+9);
+                System.out.println("Thread 2: put "+19);
                 queue.put(19);
 
                 System.out.println("Thread 2: put "+5);
