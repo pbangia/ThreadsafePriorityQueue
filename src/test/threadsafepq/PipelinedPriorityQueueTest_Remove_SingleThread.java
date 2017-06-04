@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Taranpreet on 29/05/2017.
@@ -34,17 +34,17 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
 
     @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsDefaultQueue_ReturnsNull() {
-        assertNull(defaultQueue.remove());
+        defaultQueue.remove();
     }
 
     @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsCapacityQueue_ReturnsNull() {
-        assertNull(capacityQueue.remove());
+        capacityQueue.remove();
     }
 
     @Test(expected = NoSuchElementException.class)
     public void Remove_NoItemsCapacityComparatorQueue_ReturnsNull() {
-        assertNull(capacityComparatorQueue.remove());
+        capacityComparatorQueue.remove();
     }
 
     @Test
@@ -353,16 +353,6 @@ public class PipelinedPriorityQueueTest_Remove_SingleThread {
             assertEquals(i, out);
         }
     }
-
-    @Test
-    public void Remove_ClearAll() {
-        defaultQueue.put(0);
-        defaultQueue.put(1);
-        assertFalse(defaultQueue.isEmpty());
-        defaultQueue.clear();
-        assertTrue(defaultQueue.isEmpty());
-    }
-
 
     private void shuffleArray(int[] array) {
         int index;
