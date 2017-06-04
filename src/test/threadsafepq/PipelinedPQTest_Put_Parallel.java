@@ -15,9 +15,11 @@ import static org.junit.Assert.assertTrue;
 public class PipelinedPQTest_Put_Parallel {
 
     private PipelinedPriorityQueue<Integer> queue;
+    private PriorityBlockingQueue<Integer> blockingQueue;
     @Before
     public void before() {
         queue = new PipelinedPriorityQueue<>(400);
+        blockingQueue = new PriorityBlockingQueue<>(400);
     }
 
     @Test
@@ -137,7 +139,7 @@ public class PipelinedPQTest_Put_Parallel {
 
     @Test
     public void Put_Parallel2_Correct(){
-
+        long start = System.currentTimeMillis();
         Thread t1 = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -197,9 +199,83 @@ public class PipelinedPQTest_Put_Parallel {
             t3.join();
             t4.join();
         } catch (InterruptedException ex){}
-
+        long end = System.currentTimeMillis();
+        long elapsed = (end-start);
+        System.out.println("blocking:"+elapsed);
         for (int i = 0; i<400; i++){
             int removed = queue.poll();
+            assertEquals("Poll("+i+")",i, removed);
+        }
+
+    }
+
+    @Test
+    public void Put_Parallel3_Correct(){
+        long start = System.currentTimeMillis();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try { Thread.sleep(1); } catch (Exception e) {}
+                for (int i=200; i<300; i++){
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                    blockingQueue.put(i);
+                }
+            }
+        });
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=100; i<200; i++){
+                    blockingQueue.put(i);
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=300; i<400; i++){
+                    blockingQueue.put(i);
+                    if (i%2==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<100; i++){
+                    blockingQueue.put(i);
+                    if (i%3==0) {
+                        try { Thread.sleep(1); } catch (Exception e) {}
+                    }
+                }
+            }
+        });
+
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+        } catch (InterruptedException ex){}
+        long end = System.currentTimeMillis();
+        long elapsed = (end-start);
+        System.out.println("blocking:"+elapsed);
+        for (int i = 0; i<400; i++){
+            int removed = blockingQueue.poll();
             assertEquals("Poll("+i+")",i, removed);
         }
 
