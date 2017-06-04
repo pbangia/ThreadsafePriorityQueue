@@ -18,6 +18,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
+
     private final Lock lock = new ReentrantLock();
     private final Condition notEmpty = lock.newCondition();
     private TokenArrayElement<E>[] tokenArray;
@@ -52,6 +53,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * its elements according to their natural ordering.
      *
      * @param initialCapacity the initial capacity for this priority queue
+     *
      * @throws IllegalArgumentException if initialCapacity is less than 1
      */
     public PipelinedPriorityQueue(int initialCapacity) {
@@ -66,12 +68,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param initialCapacity the initial capacity for this priority queue
      * @param comparator      the comparator that will be used to order this priority queue. If null, the natural ordering of the elements will be used.
+     *
+     * @throws IllegalArgumentException if initialCapacity is less than 1
      */
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
         int levels = BinaryTreeUtils.convertSizeToNumLevels(initialCapacity);
         init(initialCapacity, levels, comparator);
     }
+
 
     private void init(int capacity, int levels, Comparator<? super E> comparator) {
         this.binaryArray = new BinaryArrayElement[capacity];
@@ -811,7 +816,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         for (TokenArrayElement tae : tokenArray) tae.unlock();
     }
 
-    @Override // TODO update to reflect new fields
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
@@ -821,17 +826,21 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         return new EqualsBuilder()
                 .append(binaryArray, that.binaryArray)
-                .append(treeHeight, that.treeHeight)
+                .append(tokenArray, that.tokenArray)
                 .append(comparator, that.comparator)
+                .append(size, that.size)
+                .append(treeHeight, that.treeHeight)
                 .isEquals();
     }
 
-    @Override // TODO update to reflect new fields
+    @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(binaryArray)
-                .append(treeHeight)
+                .append(tokenArray)
                 .append(comparator)
+                .append(size)
+                .append(treeHeight)
                 .toHashCode();
     }
 
