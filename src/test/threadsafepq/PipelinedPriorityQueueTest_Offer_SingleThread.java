@@ -8,11 +8,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by Taranpreet on 27/05/2017.
- */
-public class PipelinedPriorityQueueTest_Put_SingleThread {
-
+public class PipelinedPriorityQueueTest_Offer_SingleThread {
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
     private static final int CUSTOM_INITIAL_CAPACITY = 42;
     private PipelinedPriorityQueue<Integer> defaultQueue;
@@ -29,31 +25,31 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_SingleNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
-        defaultQueue.put(1);
+    public void Offer_SingleNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+        defaultQueue.offer(1);
         int result = defaultQueue.remove();
 
         assertEquals(1, result);
     }
 
     @Test
-    public void Put_SingleNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
-        capacityQueue.put(1);
+    public void Offer_SingleNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+        capacityQueue.offer(1);
         int result = capacityQueue.remove();
 
         assertEquals(1, result);
     }
 
     @Test
-    public void Put_SingleNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
-        capacityComparatorQueue.put(1);
+    public void Offer_SingleNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+        capacityComparatorQueue.offer(1);
         int result = capacityComparatorQueue.remove();
 
         assertEquals(1, result);
     }
 
     @Test
-    public void Put_InOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {0, 1, 2, 3, 4, 5};
         int[] outputList = {0, 1, 2, 3, 4, 5};
 
@@ -61,7 +57,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {0, 1, 2, 3, 4, 5};
         int[] outputList = {0, 1, 2, 3, 4, 5};
 
@@ -69,7 +65,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -77,7 +73,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[DEFAULT_INITIAL_CAPACITY + 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -88,7 +84,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -99,7 +95,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -110,7 +106,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -121,7 +117,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -132,7 +128,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_InOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_InOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         for (int i = 0; i < inputList.length; i++) {
             inputList[i] = i;
@@ -144,7 +140,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
 
     // Reverse Order tests
     @Test
-    public void Put_ReverseOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -152,7 +148,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -160,7 +156,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -168,7 +164,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[DEFAULT_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -180,7 +176,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -192,7 +188,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -204,7 +200,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -216,7 +212,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -228,7 +224,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_ReverseOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_ReverseOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -240,7 +236,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderNoResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -249,7 +245,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderNoResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {5, 4, 3, 2, 1};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -258,7 +254,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderNoResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = {1, 2, 3, 4, 5};
         int[] outputList = {1, 2, 3, 4, 5};
 
@@ -267,7 +263,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderSingleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[DEFAULT_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -280,7 +276,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderSingleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -293,7 +289,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderSingleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY + 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -306,7 +302,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderMultipleResizeDefaultQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -319,7 +315,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderMultipleResizeCapacityQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -332,7 +328,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     }
 
     @Test
-    public void Put_RandomOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
+    public void Offer_RandomOrderMultipleResizeCapacityComparatorQueue_CorrectEnqueue() throws InterruptedException {
         int[] inputList = new int[CUSTOM_INITIAL_CAPACITY * 5];
         int[] outputList = new int[inputList.length];
         for (int i = 0; i < inputList.length; i++) {
@@ -347,7 +343,7 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
     private void testPutWithInputList(PipelinedPriorityQueue<Integer> queue,
                                       int[] inputList, int[] expectedOutput) {
         for (int i : inputList) {
-            queue.put(i);
+            queue.offer(i);
         }
 
         Object[] output = queue.toArray();
@@ -370,4 +366,5 @@ public class PipelinedPriorityQueueTest_Put_SingleThread {
             }
         }
     }
+
 }
