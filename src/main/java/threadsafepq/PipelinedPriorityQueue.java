@@ -519,14 +519,21 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param c collection to be checked for containment in this collection
      * @return if this collection contains all of the elements in the specified collection
-     * @throws ClassCastException   if the types of one or more elements in the specified collection are incompatible with this collection
      * @throws NullPointerException if the specified collection contains one or more null elements and this collection does not permit null elements
      */
     public boolean containsAll(Collection<?> c) {
+
+        // preliminary filtering for input
+        Iterator<E> iterator = (Iterator<E>) c.iterator();
+        while (iterator.hasNext()) {
+            E next = iterator.next();
+            if (next == null) throw new NullPointerException("Found null element in input collection!");
+        }
+
         lockAllLevels();
         if (c.size() > size.get()) return false;
 
-        Set<E> inputSet = new HashSet(c);
+        Set inputSet = new HashSet(c);
         int count = 0;
         for (BinaryArrayElement e : binaryArray) {
             if (e.getValue() == null) continue;
