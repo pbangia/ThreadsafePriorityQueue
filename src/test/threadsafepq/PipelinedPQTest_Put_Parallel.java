@@ -19,6 +19,7 @@ public class PipelinedPQTest_Put_Parallel {
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
+        queue = new PipelinedPriorityQueue<>();
     }
 
     @Test
