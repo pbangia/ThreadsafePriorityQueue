@@ -359,7 +359,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public void clear() {
         lockAllLevels();
         initBinaryArray();
-        initTokenArray();
         size.set(0);
         unlockAllLevels();
     }
@@ -817,7 +816,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     private void unlockAllLevels() {
-        for (TokenArrayElement tae : tokenArray) tae.unlock();
+        for (TokenArrayElement tae : tokenArray) {
+            tae.unlock();
+        }
     }
 
     private void incrementSize() {
