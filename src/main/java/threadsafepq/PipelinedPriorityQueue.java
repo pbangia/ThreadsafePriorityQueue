@@ -319,10 +319,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param o element to be removed from this queue, if present
      * @return if this queue changed as a result of the call
-     * @throws
+     * @throws UnsupportedOperationException  if removal of elements is not supported by the specified collection
      */
     public boolean remove(Object o) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -359,7 +359,6 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     public void clear() {
         lockAllLevels();
         initBinaryArray();
-        initTokenArray();
         size.set(0);
         unlockAllLevels();
     }
@@ -596,7 +595,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @see #contains(Object)
      */
     public boolean removeAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -619,7 +618,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @see #contains(Object)
      */
     public boolean retainAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     private boolean localEnqueue(int i) {
@@ -817,7 +816,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     private void unlockAllLevels() {
-        for (TokenArrayElement tae : tokenArray) tae.unlock();
+        for (TokenArrayElement tae : tokenArray) {
+            tae.unlock();
+        }
     }
 
     private void incrementSize() {
