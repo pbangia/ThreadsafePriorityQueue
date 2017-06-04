@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueue_IsEmpty_SingleThread {
+public class PipelinedPriorityQueueTest_IsEmpty_SingleThread {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
     private static final int CUSTOM_INITIAL_CAPACITY = 42;

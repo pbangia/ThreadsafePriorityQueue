@@ -8,7 +8,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueue_Add_SingleThread {
+public class PipelinedPriorityQueueTest_Add_SingleThread {
 
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
     private static final int CUSTOM_INITIAL_CAPACITY = 42;
