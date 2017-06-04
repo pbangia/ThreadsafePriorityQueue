@@ -5,7 +5,7 @@ import threadsafepq.PipelinedPriorityQueue;
 
 import static org.junit.Assert.assertEquals;
 
-public class PipelinedPriorityQueue_Peek extends PipelinedPriorityQueueTest {
+public class PipelinedPriorityQueueTest_Peek extends PipelinedPriorityQueueTest {
 
     @Test
     public void Peek_DefaultQueueEmptyQueue_ReturnsNull() {
