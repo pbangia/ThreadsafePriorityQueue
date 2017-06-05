@@ -83,6 +83,31 @@ public class BenchmarkTest_Parallel {
         });
     }
 
+    private Thread getMixedOperationThread(QueueType type, int size){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (type== QueueType.PIPELINED){
+                    for (int i=0; i<size; i++){
+                        if (i%2==0) {
+                            queue.put(getRandInt());
+                        } else queue.poll();
+                        sleep(i);
+                    }
+                    return;
+                }
+                for (int i = 0; i < size; i++) {
+                    if (i%2==0) {
+                        blockingQueue.put(getRandInt());
+                    } else blockingQueue.poll();
+                    sleep(i);
+                }
+            }
+            private void sleep(int i){
+                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            }
+        });
+    }
 
     private Thread getPollThread(QueueType type, int size){
         return new Thread(new Runnable() {
