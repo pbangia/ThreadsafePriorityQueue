@@ -106,6 +106,28 @@ public class BenchmarkTest_Parallel {
         });
     }
 
+    private Thread getPutThreadOrdered(QueueType type, int start, int end){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (type== QueueType.PIPELINED){
+                    for (int i=start; i<end; i++){
+                        queue.put(i);
+                        sleep(i);
+                    }
+                    return;
+                }
+                for (int i = start; i < end; i++) {
+                    blockingQueue.put(getRandInt());
+                    sleep(i);
+                }
+            }
+            private void sleep(int i){
+                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            }
+        });
+    }
+
     private int getRandInt() {
         return (int )(Math.random() * 5000 + 1);
     }
