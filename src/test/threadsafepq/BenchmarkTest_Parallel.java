@@ -89,6 +89,19 @@ public class BenchmarkTest_Parallel {
         }
     }
 
+    @Test
+    public void Put_threadsReversed_PipelinedTiming(){
+        int numOperations = 150_000;
+
+        for (int numThreads: threadCases) {
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_REVERSED);
+
+            System.out.println("PipelinedPriorityQueue - reversed\t { time: " + time
+                    + ", Number of put operations: " + numOperations
+                    + ", Threads: " + numThreads + "}");
+        }
+    }
+
     private long runThreads(int numThreads, QueueType type, int numOperations, OperationType operation){
 
         ArrayList<Thread> threads = new ArrayList<>();
