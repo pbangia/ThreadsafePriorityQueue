@@ -13,6 +13,7 @@ public class BenchmarkTest_Parallel {
     private PipelinedPriorityQueue<Integer> queue;
     private PriorityBlockingQueue<Integer> blockingQueue;
     private enum QueueType {BLOCKING, PIPELINED};
+    private enum OperationType {PUT_RANDOM,PUT_ORDERED,PUT_REVERSED,MIXED,POLL}
     private int[] threadCases = new int[]{1,2,4,6,8};
     @Before
     public void before() {
@@ -26,7 +27,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases) {
-            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations);
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_RANDOM);
 
             System.out.println("BlockingQueue\t\t\t{ time: " + time
                     + ", Number of put operations: " + numOperations
@@ -41,7 +42,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases){
-            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations);
+            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_RANDOM);
 
             System.out.println("PipelinedPriorityQueue\t{ time: "+time
                     +", Number of put operations: " + numOperations
@@ -49,12 +50,25 @@ public class BenchmarkTest_Parallel {
         }
     }
 
-    private long runThreads(int numThreads, QueueType type, int numOperations){
+    private long runThreads(int numThreads, QueueType type, int numOperations, OperationType operation){
 
         ArrayList<Thread> threads = new ArrayList<>();
+        int rangeStart = operation==OperationType.PUT_REVERSED ? numOperations:0;
+        int threadSize = numOperations/numThreads;
         for (int i=0; i<numThreads; i++){
-            int threadSize = numOperations/numThreads;
-            Thread t = getPutThreadRandom(type, threadSize);
+
+            Thread t = null;
+            switch (operation){
+                case PUT_RANDOM: t = getPutThreadRandom(type, threadSize); break;
+                case PUT_ORDERED: t = getPutThreadOrdered(type, rangeStart, threadSize);
+                    rangeStart+=threadSize;
+                    break;
+                case PUT_REVERSED: t = getPutThreadReversed(type, rangeStart, threadSize);
+                    rangeStart-=threadSize;
+                    break;
+                case MIXED: t = getMixedOperationThread(type, threadSize); break;
+                case POLL: t = getPollThread(type, threadSize);
+            }
             threads.add(t);
         }
 
@@ -140,18 +154,18 @@ public class BenchmarkTest_Parallel {
         });
     }
 
-    private Thread getPutThreadOrdered(QueueType type, int start, int end){
+    private Thread getPutThreadOrdered(QueueType type, int start, int threadSize){
         return new Thread(new Runnable() {
             @Override
             public void run() {
                 if (type== QueueType.PIPELINED){
-                    for (int i=start; i<end; i++){
+                    for (int i=start; i<start+threadSize; i++){
                         queue.put(i);
                         sleep(i);
                     }
                     return;
                 }
-                for (int i = start; i < end; i++) {
+                for (int i = start; i < start+threadSize; i++) {
                     blockingQueue.put(i);
                     sleep(i);
                 }
@@ -162,18 +176,18 @@ public class BenchmarkTest_Parallel {
         });
     }
 
-    private Thread getPutThreadReversed(QueueType type, int start, int end){
+    private Thread getPutThreadReversed(QueueType type, int start, int threadSize){
         return new Thread(new Runnable() {
             @Override
             public void run() {
                 if (type== QueueType.PIPELINED){
-                    for (int i=start; i>end; i--){
+                    for (int i=start; i>start-threadSize; i--){
                         queue.put(i);
                         sleep(i);
                     }
                     return;
                 }
-                for (int i = start; i>end; i--) {
+                for (int i = start; i>start-threadSize; i--) {
                     blockingQueue.put(i);
                     sleep(i);
                 }
