@@ -118,7 +118,29 @@ public class BenchmarkTest_Parallel {
                     return;
                 }
                 for (int i = start; i < end; i++) {
-                    blockingQueue.put(getRandInt());
+                    blockingQueue.put(i);
+                    sleep(i);
+                }
+            }
+            private void sleep(int i){
+                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            }
+        });
+    }
+
+    private Thread getPutThreadReversed(QueueType type, int start, int end){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (type== QueueType.PIPELINED){
+                    for (int i=start; i>end; i--){
+                        queue.put(i);
+                        sleep(i);
+                    }
+                    return;
+                }
+                for (int i = start; i>end; i--) {
+                    blockingQueue.put(i);
                     sleep(i);
                 }
             }
@@ -129,7 +151,7 @@ public class BenchmarkTest_Parallel {
     }
 
     private int getRandInt() {
-        return (int )(Math.random() * 5000 + 1);
+        return (int )(Math.random() * 500000 + 1);
     }
 
 }
