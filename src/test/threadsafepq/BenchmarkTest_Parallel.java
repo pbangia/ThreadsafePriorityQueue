@@ -94,7 +94,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases) {
-            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_ORDERED);
+            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_ORDERED);
 
             System.out.println("PipelinedPriorityQueue - put ordered\t { time: " + time
                     + ", Number of put operations: " + numOperations
@@ -107,7 +107,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases) {
-            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_REVERSED);
+            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_REVERSED);
 
             System.out.println("PipelinedPriorityQueue - put reversed\t { time: " + time
                     + ", Number of put operations: " + numOperations
@@ -120,7 +120,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases) {
-            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.MIXED);
+            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.MIXED);
 
             System.out.println("PipelinedPriorityQueue - mixed operations\t { time: " + time
                     + ", Number of put operations: " + numOperations
