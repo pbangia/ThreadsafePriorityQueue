@@ -13,12 +13,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class BenchmarkTest_Parallel {
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private PriorityBlockingQueue<Integer> blockingQueue;
-    //private enum QueueType {BLOCKING, PIPELINED_DEFAULT};
-    private enum OperationType {PUT_RANDOM,PUT_ORDERED,PUT_REVERSED,MIXED,POLL}
     private int[] threadCases = new int[]{1, 8,10};
     private int[] inputSizes = new int[]{10,100,1000,10_000,100_000,
             200_000,300_000,400_000,500_000,600_000,700_000,800_000,900_000};
-    //private int[] inputSizes = new int[]{10,100};
 
     @Before
     public void before() {
@@ -26,6 +23,7 @@ public class BenchmarkTest_Parallel {
         pipelinedQueue = new PipelinedPriorityQueue<>();
 
     }
+    //private int[] inputSizes = new int[]{10,100};
 
     @Test
     public void Put_threadsRandom_BlockingTiming(){
@@ -197,10 +195,8 @@ public class BenchmarkTest_Parallel {
             public void run() {
                 for (int i=0; i<size; i++){
                     if (i%3==0) {
-                        System.out.println(Thread.currentThread().getName()+" taken:"+queue.poll());
                     } else {
                         int a = getRandInt();
-                        System.out.println(Thread.currentThread().getName()+" put:"+a);
 
                         try {
                             queue.put(a);
@@ -266,6 +262,11 @@ public class BenchmarkTest_Parallel {
 
     private int getRandInt() {
         return (int )(Math.random() * 500000 + 1);
+    }
+
+    //private enum QueueType {BLOCKING, PIPELINED_DEFAULT};
+    private enum OperationType {
+        PUT_RANDOM, PUT_ORDERED, PUT_REVERSED, MIXED, POLL
     }
 
 }
