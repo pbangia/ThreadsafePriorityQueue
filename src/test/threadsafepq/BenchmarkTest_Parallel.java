@@ -27,14 +27,14 @@ public class BenchmarkTest_Parallel {
     @Test
     public void Put_threadsRandom_BlockingTiming(){
 
-        int numOperations = 150_000;
+        for (int numOperations: inputSizes) {
+            for (int numThreads : threadCases) {
+                long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_RANDOM);
 
-        for (int numThreads: threadCases) {
-            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_RANDOM);
-
-            System.out.println("BlockingQueue - put random\t\t\t { time: " + time
-                    + ", Number of put operations: " + numOperations
-                    + ", Threads: " + numThreads + "}");
+                System.out.println("BlockingQueue - put random\t\t\t { time: " + time
+                        + ", Number of put operations: " + numOperations
+                        + ", Threads: " + numThreads + "}");
+            }
         }
 
     }
