@@ -26,7 +26,7 @@ public class BenchmarkTest_Parallel {
         int numOperations = 150_000;
 
         for (int numThreads: threadCases) {
-            long time = runThreads(7, QueueType.BLOCKING, numOperations);
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations);
 
             System.out.println("BlockingQueue\t\t\t{ time: " + time
                     + ", Number of put operations: " + numOperations
@@ -42,7 +42,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numThreads: threadCases){
             long time = runThreads(numThreads, QueueType.PIPELINED, numOperations);
-            
+
             System.out.println("PipelinedPriorityQueue\t{ time: "+time
                     +", Number of put operations: " + numOperations
                     +", Threads: "+numThreads+"}");
