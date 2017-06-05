@@ -90,6 +90,19 @@ public class BenchmarkTest_Parallel {
     }
 
     @Test
+    public void MixedOperations_threadsRandom_PipelinedTiming(){
+        int numOperations = 150_000;
+
+        for (int numThreads: threadCases) {
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.MIXED);
+
+            System.out.println("PipelinedPriorityQueue - mixed operations\t { time: " + time
+                    + ", Number of put operations: " + numOperations
+                    + ", Threads: " + numThreads + "}");
+        }
+    }
+
+    @Test
     public void Put_threadsReversed_PipelinedTiming(){
         int numOperations = 150_000;
 
