@@ -13,9 +13,9 @@ import static org.junit.Assert.fail;
 public class PipelinedPriorityQueueTest_ValidityInParallel {
 
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
-    private int[] threadCases = new int[]{1, 2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90, 10};
-    private int[] inputSizes = new int[]{10, 100, 1000, 10_000, 100_000,
-            200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000};
+    private int[] threadCases = new int[]{1, 2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    private int[] inputSizes = new int[]{10, 100, 1000, 10_000, 100_000};
+//            200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000};
 
     @Before
     public void before() {
@@ -28,7 +28,7 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
         Arrays.sort(elements);
 
         Integer last = (Integer) elements[0];
-        for (int i = 1; i < last; i++) {
+        for (int i = 1; i < elements.length; i++) {
             Integer current = (Integer) elements[i];
             if (current.compareTo(last) < 0) {
                 fail();
@@ -159,11 +159,8 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
             public void run() {
                 for (int i = 0; i < size; i++) {
                     if (i % 3 == 0) {
-                        System.out.println(Thread.currentThread().getName() + " taken:" + queue.poll());
                     } else {
                         int a = getRandInt();
-                        System.out.println(Thread.currentThread().getName() + " put:" + a);
-
                         try {
                             queue.put(a);
                         } catch (Exception e) {
