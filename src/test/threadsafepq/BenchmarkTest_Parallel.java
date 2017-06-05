@@ -76,6 +76,19 @@ public class BenchmarkTest_Parallel {
         }
     }
 
+    @Test
+    public void Put_threadsOrdered_PipelinedTiming(){
+        int numOperations = 150_000;
+
+        for (int numThreads: threadCases) {
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_ORDERED);
+
+            System.out.println("PipelinedPriorityQueue - ordered\t { time: " + time
+                    + ", Number of put operations: " + numOperations
+                    + ", Threads: " + numThreads + "}");
+        }
+    }
+
     private long runThreads(int numThreads, QueueType type, int numOperations, OperationType operation){
 
         ArrayList<Thread> threads = new ArrayList<>();
