@@ -4,23 +4,26 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by priyankitbangia on 5/06/17.
  */
 public class BenchmarkTest_Parallel {
-    private PipelinedPriorityQueue<Integer> queue;
+    private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private PriorityBlockingQueue<Integer> blockingQueue;
-    private enum QueueType {BLOCKING, PIPELINED};
+    //private enum QueueType {BLOCKING, PIPELINED_DEFAULT};
     private enum OperationType {PUT_RANDOM,PUT_ORDERED,PUT_REVERSED,MIXED,POLL}
     private int[] threadCases = new int[]{1, 8,10};
     private int[] inputSizes = new int[]{10,100,1000,10_000,100_000,
             200_000,300_000,400_000,500_000,600_000,700_000,800_000,900_000};
+    //private int[] inputSizes = new int[]{10,100};
+
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
-        queue = new PipelinedPriorityQueue<>();
+        pipelinedQueue = new PipelinedPriorityQueue<>();
 
     }
 
@@ -29,7 +32,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads : threadCases) {
-                long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_RANDOM);
+                long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_RANDOM);
 
                 System.out.println("BlockingQueue - put random\t\t\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -43,7 +46,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_ORDERED);
+                long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_ORDERED);
 
                 System.out.println("BlockingQueue - put ordered\t\t\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -57,7 +60,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_REVERSED);
+                long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_REVERSED);
 
                 System.out.println("BlockingQueue - put reversed\t\t\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -71,7 +74,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.MIXED);
+                long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.MIXED);
 
                 System.out.println("BlockingQueue - mixed operations\t\t\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -85,7 +88,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases){
-                long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_RANDOM);
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_RANDOM);
 
                 System.out.println("PipelinedPriorityQueue - put random\t { time: "+time
                         +", Number of put operations: " + numOperations
@@ -99,7 +102,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_ORDERED);
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_ORDERED);
 
                 System.out.println("PipelinedPriorityQueue - put ordered\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -113,7 +116,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_REVERSED);
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_REVERSED);
 
                 System.out.println("PipelinedPriorityQueue - put reversed\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -127,7 +130,7 @@ public class BenchmarkTest_Parallel {
 
         for (int numOperations: inputSizes) {
             for (int numThreads: threadCases) {
-                long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.MIXED);
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.MIXED);
 
                 System.out.println("PipelinedPriorityQueue - mixed operations\t { time: " + time
                         + ", Number of put operations: " + numOperations
@@ -136,8 +139,7 @@ public class BenchmarkTest_Parallel {
         }
     }
 
-    private long runThreads(int numThreads, QueueType type, int numOperations, OperationType operation){
-
+    private long runThreads(int numThreads, BlockingQueue queue, int numOperations, OperationType operation){
         ArrayList<Thread> threads = new ArrayList<>();
         int rangeStart = operation==OperationType.PUT_REVERSED ? numOperations:0;
         int threadSize = numOperations/numThreads;
@@ -145,15 +147,15 @@ public class BenchmarkTest_Parallel {
 
             Thread t = null;
             switch (operation){
-                case PUT_RANDOM: t = getPutThreadRandom(type, threadSize); break;
-                case PUT_ORDERED: t = getPutThreadOrdered(type, rangeStart, threadSize);
+                case PUT_RANDOM: t = getPutThreadRandom(queue, threadSize); break;
+                case PUT_ORDERED: t = getPutThreadOrdered(queue, rangeStart, threadSize);
                     rangeStart+=threadSize;
                     break;
-                case PUT_REVERSED: t = getPutThreadReversed(type, rangeStart, threadSize);
+                case PUT_REVERSED: t = getPutThreadReversed(queue, rangeStart, threadSize);
                     rangeStart-=threadSize;
                     break;
-                case MIXED: t = getMixedOperationThread(type, threadSize); break;
-                case POLL: t = getPollThread(type, threadSize);
+                case MIXED: t = getMixedOperationThread(queue, threadSize); break;
+                case POLL: t = getPollThread(queue, threadSize);
             }
             t.setName(""+i);
             threads.add(t);
@@ -167,23 +169,19 @@ public class BenchmarkTest_Parallel {
 
         long end = System.currentTimeMillis();
         blockingQueue.clear();
+        pipelinedQueue.clear();
         queue.clear();
         return end-start;
     }
 
-    private Thread getPutThreadRandom(QueueType type, int size){
+    private Thread getPutThreadRandom(BlockingQueue<Integer> queue, int size) {
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                if (type== QueueType.PIPELINED){
-                    for (int i=0; i<size; i++){
+                for (int i = 0; i < size; i++) {
+                    try {
                         queue.put(getRandInt());
-                        sleep(i);
-                    }
-                    return;
-                }
-                for (int i = 0; i < size; i++) {
-                    blockingQueue.put(getRandInt());
+                    } catch (Exception e) {}
                     sleep(i);
                 }
             }
@@ -193,49 +191,36 @@ public class BenchmarkTest_Parallel {
         });
     }
 
-    private Thread getMixedOperationThread(QueueType type, int size){
+    private Thread getMixedOperationThread(BlockingQueue<Integer> queue, int size){
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                if (type== QueueType.PIPELINED){
-                    for (int i=0; i<size; i++){
-                        if (i%3==0) {
-                            System.out.println(Thread.currentThread().getName()+" taken:"+queue.poll());
-                        } else {
-                            int a = getRandInt();
-                            System.out.println(Thread.currentThread().getName()+" put:"+a);
-                            queue.put(a);
-                            sleep(i);
-                        }
-                    }
-                    return;
-                }
-                for (int i = 0; i < size; i++) {
-                    if (i%3==0) {
-                        blockingQueue.poll();
-                    } else blockingQueue.put(getRandInt());
-                    sleep(i);
-                }
-            }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
-            }
-        });
-    }
-
-    private Thread getPollThread(QueueType type, int size){
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (type== QueueType.PIPELINED){
-                    for (int i=0; i<size; i++){
-                        queue.poll();
-                        sleep(i);
-                    }
-                    return;
-                }
                 for (int i=0; i<size; i++){
-                    blockingQueue.poll();
+                    if (i%3==0) {
+                        System.out.println(Thread.currentThread().getName()+" taken:"+queue.poll());
+                    } else {
+                        int a = getRandInt();
+                        System.out.println(Thread.currentThread().getName()+" put:"+a);
+
+                        try {
+                            queue.put(a);
+                        } catch (Exception e) {}
+                        sleep(i);
+                    }
+                }
+            }
+            private void sleep(int i){
+                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            }
+        });
+    }
+
+    private Thread getPollThread(BlockingQueue<Integer> queue, int size){
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i=0; i<size; i++){
+                    queue.poll();
                     sleep(i);
                 }
             }
@@ -245,19 +230,14 @@ public class BenchmarkTest_Parallel {
         });
     }
 
-    private Thread getPutThreadOrdered(QueueType type, int start, int threadSize){
+    private Thread getPutThreadOrdered(BlockingQueue<Integer> queue, int start, int threadSize){
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                if (type== QueueType.PIPELINED){
-                    for (int i=start; i<start+threadSize; i++){
-                        queue.put(i);
-                        sleep(i);
-                    }
-                    return;
-                }
                 for (int i = start; i < start+threadSize; i++) {
-                    blockingQueue.put(i);
+                    try {
+                        queue.put(i);
+                    } catch (Exception e) {}
                     sleep(i);
                 }
             }
@@ -267,19 +247,14 @@ public class BenchmarkTest_Parallel {
         });
     }
 
-    private Thread getPutThreadReversed(QueueType type, int start, int threadSize){
+    private Thread getPutThreadReversed(BlockingQueue<Integer> queue, int start, int threadSize){
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                if (type== QueueType.PIPELINED){
-                    for (int i=start; i>start-threadSize; i--){
-                        queue.put(i);
-                        sleep(i);
-                    }
-                    return;
-                }
                 for (int i = start; i>start-threadSize; i--) {
-                    blockingQueue.put(i);
+                    try {
+                        queue.put(i);
+                    } catch (Exception e) {}
                     sleep(i);
                 }
             }
