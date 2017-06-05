@@ -14,7 +14,7 @@ public class BenchmarkTest_Parallel {
     private PriorityBlockingQueue<Integer> blockingQueue;
     private enum QueueType {BLOCKING, PIPELINED};
     private enum OperationType {PUT_RANDOM,PUT_ORDERED,PUT_REVERSED,MIXED,POLL}
-    private int[] threadCases = new int[]{1,2,4,6,8};
+    private int[] threadCases = new int[]{8,10};
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
@@ -29,11 +29,24 @@ public class BenchmarkTest_Parallel {
         for (int numThreads: threadCases) {
             long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_RANDOM);
 
-            System.out.println("BlockingQueue\t\t\t{ time: " + time
+            System.out.println("BlockingQueue - random\t\t\t { time: " + time
                     + ", Number of put operations: " + numOperations
                     + ", Threads: " + numThreads + "}");
         }
 
+    }
+
+    @Test
+    public void Put_threadsOrdered_BlockingTiming(){
+        int numOperations = 150_000;
+
+        for (int numThreads: threadCases) {
+            long time = runThreads(numThreads, QueueType.BLOCKING, numOperations, OperationType.PUT_ORDERED);
+
+            System.out.println("BlockingQueue - ordered\t\t\t { time: " + time
+                    + ", Number of put operations: " + numOperations
+                    + ", Threads: " + numThreads + "}");
+        }
     }
 
     @Test
@@ -44,7 +57,7 @@ public class BenchmarkTest_Parallel {
         for (int numThreads: threadCases){
             long time = runThreads(numThreads, QueueType.PIPELINED, numOperations, OperationType.PUT_RANDOM);
 
-            System.out.println("PipelinedPriorityQueue\t{ time: "+time
+            System.out.println("PipelinedPriorityQueue - random\t { time: "+time
                     +", Number of put operations: " + numOperations
                     +", Threads: "+numThreads+"}");
         }
