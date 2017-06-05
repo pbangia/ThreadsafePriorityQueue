@@ -38,7 +38,7 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
     }
 
     @Test
-    public void Put_threadsRandom_PipelinedTiming() {
+    public void Put_MultipleThreadsRandomOrder_ValidInsertions() {
 
         for (int numOperations : inputSizes) {
             for (int numThreads : threadCases) {
@@ -49,7 +49,7 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
     }
 
     @Test
-    public void Put_threadsOrdered_PipelinedTiming() {
+    public void Put_MultipleThreadsInOrder_ValidInsertions() {
 
         for (int numOperations : inputSizes) {
             for (int numThreads : threadCases) {
@@ -60,7 +60,7 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
     }
 
     @Test
-    public void Put_threadsReversed_PipelinedTiming() {
+    public void Put_MultipleThreadsReverseOrder_ValidInsertions() {
 
         for (int numOperations : inputSizes) {
             for (int numThreads : threadCases) {
@@ -71,7 +71,46 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
     }
 
     @Test
-    public void MixedOperations_threadsRandom_PipelinedTiming() {
+    public void PollTest_MultipleThreadsInOrder_Valid() {
+        for (int numOperations : inputSizes) {
+            for (int numThreads : threadCases) {
+                for (int i = 0; i < numOperations; i++) {
+                    pipelinedQueue.put(i);
+                }
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.POLL);
+                // getPollThreads does the checking for validity internally
+            }
+        }
+    }
+
+    @Test
+    public void PollTest_MultipleThreadsReverseOrder_Valid() {
+        for (int numOperations : inputSizes) {
+            for (int numThreads : threadCases) {
+                for (int i = 0; i < numOperations; i++) {
+                    pipelinedQueue.put(numOperations - i);
+                }
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.POLL);
+                // getPollThreads does the checking for validity internally
+            }
+        }
+    }
+
+    @Test
+    public void PollTest_MultipleThreadsRandomOrder_Valid() {
+        for (int numOperations : inputSizes) {
+            for (int numThreads : threadCases) {
+                for (int i = 0; i < numOperations; i++) {
+                    pipelinedQueue.put(getRandInt());
+                }
+                long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.POLL);
+                // getPollThreads does the checking for validity internally
+            }
+        }
+    }
+
+    @Test
+    public void MixedOperations_MultipleThreads_Valid() {
 
         for (int numOperations : inputSizes) {
             for (int numThreads : threadCases) {
@@ -185,8 +224,10 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
         return new Thread(new Runnable() {
             @Override
             public void run() {
+                int last = -1;
                 for (int i = 0; i < size; i++) {
-                    queue.poll();
+                    int current = queue.poll();
+                    if (current < last) fail();
                     sleep(i);
                 }
             }
