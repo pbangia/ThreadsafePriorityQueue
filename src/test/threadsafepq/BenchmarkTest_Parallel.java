@@ -13,6 +13,7 @@ public class BenchmarkTest_Parallel {
     private PipelinedPriorityQueue<Integer> queue;
     private PriorityBlockingQueue<Integer> blockingQueue;
     private enum QueueType {BLOCKING, PIPELINED};
+    private int[] threadCases = new int[]{1,2,4,6,8};
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
@@ -21,26 +22,31 @@ public class BenchmarkTest_Parallel {
     }
 
     @Test
-    public void Put_7threadsRandom_BlockingTiming(){
+    public void Put_threadsRandom_BlockingTiming(){
         int numOperations = 150_000;
-        int numThreads = 7;
-        long time = runThreads(7, QueueType.BLOCKING, numOperations);
-        System.out.println("BlockingQueue\t\t\t{ time: "+time
-                +", Number of put operations: " + numOperations
-                +", Threads: "+numThreads + "}");
+
+        for (int numThreads: threadCases) {
+            long time = runThreads(7, QueueType.BLOCKING, numOperations);
+
+            System.out.println("BlockingQueue\t\t\t{ time: " + time
+                    + ", Number of put operations: " + numOperations
+                    + ", Threads: " + numThreads + "}");
+        }
 
     }
 
     @Test
-    public void Put_7threadsRandom_PipelinedTiming(){
+    public void Put_threadsRandom_PipelinedTiming(){
         queue = new PipelinedPriorityQueue<>(150_000);
         int numOperations = 150_000;
-        int numThreads = 7;
-        long time = runThreads(numThreads, QueueType.PIPELINED, numOperations);
-        System.out.println("PipelinedPriorityQueue\t{ time: "+time
-                +", Number of put operations: " + numOperations
-                +", Threads: "+numThreads+"}");
 
+        for (int numThreads: threadCases){
+            long time = runThreads(numThreads, QueueType.PIPELINED, numOperations);
+            
+            System.out.println("PipelinedPriorityQueue\t{ time: "+time
+                    +", Number of put operations: " + numOperations
+                    +", Threads: "+numThreads+"}");
+        }
     }
 
     private long runThreads(int numThreads, QueueType type, int numOperations){
@@ -57,7 +63,10 @@ public class BenchmarkTest_Parallel {
         for (Thread t: threads) t.start();
         for (Thread t: threads) try{ t.join(); }catch (InterruptedException ex){}
 
+
         long end = System.currentTimeMillis();
+        blockingQueue.clear();
+        queue.clear();
         return end-start;
     }
 
