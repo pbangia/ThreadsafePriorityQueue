@@ -16,6 +16,7 @@ public class PipelinedPQTest_Put_Parallel {
 
     private PipelinedPriorityQueue<Integer> queue;
     private PriorityBlockingQueue<Integer> blockingQueue;
+    private enum QueueType {BLOCKING, PIPELINED};
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
@@ -47,6 +48,7 @@ public class PipelinedPQTest_Put_Parallel {
 
                 System.out.println("Thread 1: put "+6);
                 queue.put(6);
+                System.out.println("1 finished");
 
             }
         });
@@ -71,6 +73,7 @@ public class PipelinedPQTest_Put_Parallel {
 
                 System.out.println("Thread 2: put "+16);
                 queue.put(16);
+                System.out.println("2 finished");
             }
         });
 
@@ -94,6 +97,7 @@ public class PipelinedPQTest_Put_Parallel {
 
                 System.out.println("Thread 3: put "+2);
                 queue.put(2);
+                System.out.println("3 finished");
             }
         });
 
@@ -116,6 +120,8 @@ public class PipelinedPQTest_Put_Parallel {
 
                 System.out.println("Thread 4: put "+4);
                 queue.put(4);
+
+                System.out.println("4 finished");
             }
         });
 
@@ -137,236 +143,6 @@ public class PipelinedPQTest_Put_Parallel {
 
     }
 
-    @Test
-    public void Put_Parallel3_Correct(){
-        queue = new PipelinedPriorityQueue<>(1_500_000);
-        long start = System.currentTimeMillis();
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try { Thread.sleep(1); } catch (Exception e) {}
-                for (int i=0; i<150_000; i++){
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                    queue.put(getRandInt());
-                }
-            }
-        });
 
-        Thread t2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t3 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t4 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-        Thread t5 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t6 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t7 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try { Thread.sleep(20); } catch (Exception e){}
-                for (int i=0; i<150_000; i++){
-                    queue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
-        t6.start();
-        t7.start();
-        try {
-            t1.join();
-            t2.join();
-            t3.join();
-            t4.join();
-            t5.join();
-            t6.join();
-            t7.join();
-
-        } catch (InterruptedException ex){}
-        long end = System.currentTimeMillis();
-        long elapsed = (end-start);
-        System.out.println("PipelinedPriorityQueue time: "+elapsed);
-        for (int i = 0; i<400; i++){
-            int removed = queue.poll();
-            //assertEquals("Poll("+i+")",i, removed);
-        }
-
-    }
-
-    @Test
-    public void Put_Parallel2_Correct(){
-        long start = System.currentTimeMillis();
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try { Thread.sleep(1); } catch (Exception e) {}
-                for (int i=0; i<150_000; i++){
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                    blockingQueue.put(getRandInt());
-                }
-            }
-        });
-
-        Thread t2 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.put(getRandInt());
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t3 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.put(getRandInt());
-                    if (i%2==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t4 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t5 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t6 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.put(getRandInt());
-                    if (i%3==0) {
-                        try { Thread.sleep(1); } catch (Exception e) {}
-                    }
-                }
-            }
-        });
-
-        Thread t7 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try { Thread.sleep(20); } catch (Exception e){}
-                for (int i=0; i<150_000; i++){
-                    blockingQueue.poll();
-                    if (i%3==0) {
-                    }
-                }
-            }
-        });
-
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
-        t6.start();
-        t7.start();
-        try {
-            t1.join();
-            t2.join();
-            t3.join();
-            t4.join();
-            t5.join();
-            t6.join();
-            t7.join();
-        } catch (InterruptedException ex){}
-        long end = System.currentTimeMillis();
-        long elapsed = (end-start);
-        System.out.println("PriorityBlockingQueue time: "+elapsed);
-        for (int i = 0; i<400; i++){
-            int removed = blockingQueue.poll();
-//            assertEquals("Poll("+i+")",i, removed);
-        }
-    }
-
-    private int getRandInt() {
-        return (int )(Math.random() * 5000 + 1);
-    }
 
 }
