@@ -126,7 +126,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         for (int i = 0; i < tokenArray.length; i++) {
             TokenArrayElement<E> element = new TokenArrayElement<E>(
                     TokenArrayElement.Operation.NO_OPERATION, null,
-                    1, comparator, new ReentrantLock(true));
+                    1, comparator, new TokenArrayElement.TokenLock(true));
             tokenArray[i] = element;
         }
     }
@@ -170,8 +170,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             boolean result = localEnqueue(level);
             if (result) {
                 incrementSize();
-                tokenArray[level].unlock();
                 if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
+                tokenArray[level].unlock();
                 break;
             }
             tokenArray[level].unlock();
@@ -750,7 +750,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     private void resize() {
         int tokenArrayLength = tokenArray.length;
-        for (int i = 0; i < tokenArrayLength; i ++) {
+        for (int i = 2; i < tokenArrayLength; i++) {
             tokenArray[i].lock();
         }
 
@@ -774,12 +774,13 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(newCapacity);
 
         TokenArrayElement<E>[] temp = new TokenArrayElement[treeHeight];
-        for (int i=0; i<tokenArray.length; i++){
+        for (int i = 0; i < tokenArray.length; i++) {
             temp[i] = tokenArray[i];
         }
 
-        for (int i=tokenArray.length; i<treeHeight; i++){
-            temp[i] = new TokenArrayElement(null, null, 1, comparator, new ReentrantLock(true));
+        for (int i = tokenArray.length; i < treeHeight; i++) {
+            temp[i] = new TokenArrayElement(null, null, 1, comparator,
+                    new TokenArrayElement.TokenLock(true));
         }
         tokenArray = temp;
 
