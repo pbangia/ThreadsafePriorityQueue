@@ -143,6 +143,16 @@ public class PipelinedPQTest_Put_Parallel {
 
     }
 
+    @Test
+    private void Put_Parallel2_Correct(){
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+               queue.put(1);
+            }
+        });
+    }
+
 
 
 }

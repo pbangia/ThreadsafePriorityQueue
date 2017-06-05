@@ -14,7 +14,9 @@ public class BenchmarkTest_Parallel {
     private PriorityBlockingQueue<Integer> blockingQueue;
     private enum QueueType {BLOCKING, PIPELINED};
     private enum OperationType {PUT_RANDOM,PUT_ORDERED,PUT_REVERSED,MIXED,POLL}
-    private int[] threadCases = new int[]{8,10};
+    private int[] threadCases = new int[]{1, 8,10};
+    private int[] inputSizes = new int[]{10,100,1000,10_000,100_000,
+            200_000,300_000,400_000,500_000,600_000,700_000,800_000,900_000};
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
@@ -147,6 +149,7 @@ public class BenchmarkTest_Parallel {
                 case MIXED: t = getMixedOperationThread(type, threadSize); break;
                 case POLL: t = getPollThread(type, threadSize);
             }
+            t.setName(""+i);
             threads.add(t);
         }
 
@@ -190,17 +193,21 @@ public class BenchmarkTest_Parallel {
             public void run() {
                 if (type== QueueType.PIPELINED){
                     for (int i=0; i<size; i++){
-                        if (i%2==0) {
-                            queue.put(getRandInt());
-                        } else queue.poll();
-                        sleep(i);
+                        if (i%3==0) {
+                            System.out.println(Thread.currentThread().getName()+" taken:"+queue.poll());
+                        } else {
+                            int a = getRandInt();
+                            System.out.println(Thread.currentThread().getName()+" put:"+a);
+                            queue.put(a);
+                            sleep(i);
+                        }
                     }
                     return;
                 }
                 for (int i = 0; i < size; i++) {
-                    if (i%2==0) {
-                        blockingQueue.put(getRandInt());
-                    } else blockingQueue.poll();
+                    if (i%3==0) {
+                        blockingQueue.poll();
+                    } else blockingQueue.put(getRandInt());
                     sleep(i);
                 }
             }
