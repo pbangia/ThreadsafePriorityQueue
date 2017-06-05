@@ -18,13 +18,13 @@ public class TokenArrayElement<E> implements Serializable {
     private E value;
     private int position;
     private Comparator<? super E> comparator;
-    private final ReentrantLock reentrantLock;
+    private final TokenLock reentrantLock;
 
     public TokenArrayElement(Operation operation,
                              E value,
                              int position,
                              Comparator<? super E> comparator,
-                             ReentrantLock reentrantLock) {
+                             TokenLock reentrantLock) {
         this.operation = operation;
         this.value = value;
         this.position = position;
@@ -45,6 +45,10 @@ public class TokenArrayElement<E> implements Serializable {
 
     public void unlock() {
         reentrantLock.unlock();
+    }
+
+    public TokenLock getLock() {
+        return reentrantLock;
     }
 
     public Operation getOperation() {
@@ -112,6 +116,18 @@ public class TokenArrayElement<E> implements Serializable {
                 ", value=" + value +
                 ", position=" + position +
                 '}';
+    }
+
+    protected static class TokenLock extends ReentrantLock {
+
+        public TokenLock(boolean fair) {
+            super(fair);
+        }
+
+        public Thread getOwner() {
+            return super.getOwner();
+        }
+
     }
 
 }
