@@ -34,9 +34,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads : threadCases) {
                 long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_RANDOM);
 
-                System.out.println("BlockingQueue - put random\t\t\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("BlockingQueue - put random\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -48,9 +48,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_ORDERED);
 
-                System.out.println("BlockingQueue - put ordered\t\t\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("BlockingQueue - put ordered\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -62,9 +62,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.PUT_REVERSED);
 
-                System.out.println("BlockingQueue - put reversed\t\t\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("BlockingQueue - put reversed\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -76,9 +76,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, blockingQueue, numOperations, OperationType.MIXED);
 
-                System.out.println("BlockingQueue - mixed operations\t\t\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("BlockingQueue - mixed operations\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -90,9 +90,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases){
                 long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_RANDOM);
 
-                System.out.println("PipelinedPriorityQueue - put random\t { time: "+time
-                        +", Number of put operations: " + numOperations
-                        +", Threads: "+numThreads+"}");
+                System.out.println("PipelinedPriorityQueue - put random\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -104,9 +104,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_ORDERED);
 
-                System.out.println("PipelinedPriorityQueue - put ordered\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("PipelinedPriorityQueue - put ordered\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -118,9 +118,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.PUT_REVERSED);
 
-                System.out.println("PipelinedPriorityQueue - put reversed\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("PipelinedPriorityQueue - put reversed\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
@@ -132,9 +132,9 @@ public class BenchmarkTest_Parallel {
             for (int numThreads: threadCases) {
                 long time = runThreads(numThreads, pipelinedQueue, numOperations, OperationType.MIXED);
 
-                System.out.println("PipelinedPriorityQueue - mixed operations\t { time: " + time
-                        + ", Number of put operations: " + numOperations
-                        + ", Threads: " + numThreads + "}");
+                System.out.println("PipelinedPriorityQueue - mixed operations\t\t\t" + time
+                        + "\t" + numOperations
+                        + "\t" + numThreads);
             }
         }
     }
