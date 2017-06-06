@@ -125,8 +125,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     private void initTokenArray() {
         for (int i = 0; i < tokenArray.length; i++) {
             TokenArrayElement<E> element = new TokenArrayElement<E>(
-                    TokenArrayElement.Operation.NO_OPERATION, null,
-                    1, comparator, new TokenArrayElement.TokenLock(true));
+                    null, 1, comparator,
+                    new TokenArrayElement.TokenLock(true));
             tokenArray[i] = element;
         }
     }
@@ -779,7 +779,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         for (int i = tokenArray.length; i < treeHeight; i++) {
-            temp[i] = new TokenArrayElement(null, null, 1, comparator,
+            temp[i] = new TokenArrayElement(null, 1, comparator,
                     new TokenArrayElement.TokenLock(true));
         }
         tokenArray = temp;

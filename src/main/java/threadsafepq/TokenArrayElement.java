@@ -8,73 +8,112 @@ import java.util.Comparator;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by Taranpreet on 26/05/2017.
+ * A single instance of TokenArrayElement<E> represents a single level
+ * of the pipelined heap used in the queue.
  */
 public class TokenArrayElement<E> implements Serializable {
 
+    /**
+     * Used to uniquely serialize an instance of this class.
+     */
     private static final long serialVersionUID = 44L;
-
-    private Operation operation;
+    /**
+     * Represents the generic type value to be stored inside the node.
+     */
     private E value;
+    /**
+     * Represents a position of a node in the binary tree.
+     */
     private int position;
+    /**
+     * Represents the user-defined comparator passed in the construction of the queue.
+     * This is used to determine the relative priorities of different nodes.
+     */
     private Comparator<? super E> comparator;
-    private final TokenLock reentrantLock;
+    /**
+     * Represents the Lock associated with this TokenArrayElement used to control concurrent read/write access.
+     */
+    private final TokenLock tokenLock;
 
-    public TokenArrayElement(Operation operation,
-                             E value,
+    /**
+     * Constructs a single instance of TokenArrayElement<E>
+     *
+     * @param value      nullable value representing the node
+     * @param position   position of a node in the binary tree
+     * @param comparator comparator used to determine the relative priorities of different nodes
+     * @param tokenLock  TokenLock used to control concurrent access with this instance
+     */
+    public TokenArrayElement(E value,
                              int position,
                              Comparator<? super E> comparator,
-                             TokenLock reentrantLock) {
-        this.operation = operation;
+                             TokenLock tokenLock) {
         this.value = value;
         this.position = position;
         this.comparator = comparator;
-        this.reentrantLock = reentrantLock;
+        this.tokenLock = tokenLock;
     }
 
-    protected enum Operation {
-        ENQUEUE,
-        DEQUEUE,
-        ENQUEUE_DEQUEUE,
-        NO_OPERATION
-    }
-
+    /**
+     * Locks this TokenArrayElement.
+     */
     public void lock() {
-        reentrantLock.lock();
+        tokenLock.lock();
     }
 
+    /**
+     * Unlocks this TokenArrayElement.
+     */
     public void unlock() {
-        reentrantLock.unlock();
+        tokenLock.unlock();
     }
 
+    /**
+     * Returns the TokenLock associated with this TokenArrayElement
+     * @return TokenLock associated with this TokenArrayElement
+     */
     public TokenLock getLock() {
-        return reentrantLock;
+        return tokenLock;
     }
 
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
+    /**
+     * Returns the value associated with this TokenArrayElement
+     * @return the value associated with this TokenArrayElement
+     */
     public E getValue() {
         return value;
     }
 
+    /**
+     * Sets the value associated with this TokenArrayElement
+     * @param value the new value to be associated with this TokenArrayElement
+     */
     public void setValue(E value) {
         this.value = value;
     }
 
+    /**
+     * Returns the position associated with this TokenArrayElement
+     * @return position associated with this TokenArrayElement
+     */
     public int getPosition() {
         return position;
     }
 
+    /**
+     * Sets the position associated with this TokenArrayElement
+     * @param position new position to be associated with this TokenArrayElement
+     */
     public void setPosition(int position) {
         this.position = position;
     }
 
+    /**
+     * Returns true if the value in this BinaryArrayElement is greater than the argument value.
+     * This implementation will use natural ordering to determine the relativity in priorities between
+     * the two values if no comparator is provided.
+     * @param o The other value to compare this BinaryArrayElement's value with
+     * @return true if the value in this BinaryArrayElement is greater than the argument value
+     */
     public boolean isGreaterThan(E o) {
         int result;
         if (comparator != null) {
@@ -95,7 +134,6 @@ public class TokenArrayElement<E> implements Serializable {
         TokenArrayElement<?> that = (TokenArrayElement<?>) o;
         return new EqualsBuilder()
                 .append(position, that.position)
-                .append(operation, that.operation)
                 .append(value, that.value)
                 .isEquals();
     }
@@ -103,7 +141,6 @@ public class TokenArrayElement<E> implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(operation)
                 .append(value)
                 .append(position)
                 .toHashCode();
@@ -112,7 +149,6 @@ public class TokenArrayElement<E> implements Serializable {
     @Override
     public String toString() {
         return "TokenArrayElement{" +
-                "operation=" + operation +
                 ", value=" + value +
                 ", position=" + position +
                 '}';

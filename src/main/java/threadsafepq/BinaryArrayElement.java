@@ -41,7 +41,7 @@ public class BinaryArrayElement<E> implements Serializable {
      * @param isActive   true if this node is active on construction
      * @param value      nullable value representing the node
      * @param capacity   number of inactive nodes sub-rooted at this node
-     * @param comparator comparator used to determine the relative prorities of different nodes
+     * @param comparator comparator used to determine the relative priorities of different nodes
      */
     public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator) {
         this.isActive = isActive;
