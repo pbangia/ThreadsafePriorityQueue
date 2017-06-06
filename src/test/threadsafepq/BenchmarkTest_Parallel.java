@@ -20,7 +20,7 @@ public class BenchmarkTest_Parallel {
     @Before
     public void before() {
         blockingQueue = new PriorityBlockingQueue<>();
-        pipelinedQueue = new PipelinedPriorityQueue<>();
+        pipelinedQueue = new PipelinedPriorityQueue<>(100_000);
 
     }
     //private int[] inputSizes = new int[]{10,100};
@@ -164,7 +164,7 @@ public class BenchmarkTest_Parallel {
         for (Thread t: threads) t.start();
         for (Thread t: threads) try{ t.join(); }catch (InterruptedException ex){}
 
-
+        //System.out.println("all threads finish");
         long end = System.currentTimeMillis();
         blockingQueue.clear();
         pipelinedQueue.clear();
@@ -180,11 +180,16 @@ public class BenchmarkTest_Parallel {
                     try {
                         queue.put(getRandInt());
                     } catch (Exception e) {}
-                    sleep(i);
+                    dowork();
                 }
             }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            private int dowork(){
+                int count = 0;
+                for (int i = 0; i<getRandInt(); i++){
+                    count++;
+                }
+                return count;
+               // if (getRandInt() % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
             }
         });
     }
@@ -201,13 +206,23 @@ public class BenchmarkTest_Parallel {
                         try {
                             queue.put(a);
                         } catch (Exception e) {}
-                        sleep(i);
+                        dowork();
                     }
+
                 }
+
             }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            private int dowork(){
+                int count = 0;
+                for (int i = 0; i<getRandInt(); i++){
+                    count++;
+                }
+                return count;
+                // if (getRandInt() % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
             }
+            //private void sleep(int i){
+               // if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            //}
         });
     }
 
@@ -217,12 +232,20 @@ public class BenchmarkTest_Parallel {
             public void run() {
                 for (int i=0; i<size; i++){
                     queue.poll();
-                    sleep(i);
+                    dowork();
                 }
             }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            private int dowork(){
+                int count = 0;
+                for (int i = 0; i<getRandInt(); i++){
+                    count++;
+                }
+                return count;
+                // if (getRandInt() % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
             }
+            //private void sleep(int i){
+               // if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            //}
         });
     }
 
@@ -234,12 +257,20 @@ public class BenchmarkTest_Parallel {
                     try {
                         queue.put(i);
                     } catch (Exception e) {}
-                    sleep(i);
+                    dowork();
                 }
             }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            private int dowork(){
+                int count = 0;
+                for (int i = 0; i<getRandInt(); i++){
+                    count++;
+                }
+                return count;
+                // if (getRandInt() % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
             }
+            //private void sleep(int i){
+                //if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            //}
         });
     }
 
@@ -251,12 +282,20 @@ public class BenchmarkTest_Parallel {
                     try {
                         queue.put(i);
                     } catch (Exception e) {}
-                    sleep(i);
+                    dowork();
                 }
             }
-            private void sleep(int i){
-                if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            private int dowork(){
+                int count = 0;
+                for (int i = 0; i<getRandInt(); i++){
+                    count++;
+                }
+                return count;
+                // if (getRandInt() % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
             }
+            //private void sleep(int i){
+                //if (i % 3 == 0) { try { Thread.sleep(1); } catch (Exception e) {} }
+            //}
         });
     }
 
