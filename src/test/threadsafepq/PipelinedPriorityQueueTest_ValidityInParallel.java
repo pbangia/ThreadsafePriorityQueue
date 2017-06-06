@@ -10,6 +10,11 @@ import java.util.concurrent.BlockingQueue;
 
 import static org.junit.Assert.fail;
 
+/**
+ * Validity test to confirm that the operations that take place on an instance of
+ * PipelinedPriorityQueue preserve the characterisitics of a PriorityQueue when accessed concurrently
+ * by multiple threads.
+ */
 public class PipelinedPriorityQueueTest_ValidityInParallel {
 
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
