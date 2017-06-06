@@ -13,9 +13,9 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class BenchmarkTest_Parallel {
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private PriorityBlockingQueue<Integer> blockingQueue;
-    private int[] threadCases = new int[]{1, 2, 4, 8, 16, 32, 64, 128};
-    private int[] inputSizes = new int[]{10,100,1000,10_000,100_000,
-            200_000,300_000,400_000,500_000,600_000,700_000,800_000,900_000};
+    private int[] threadCases = new int[]{ 1, 2, 4, 8, 16, 32, 64, 128, 1000};
+    private int[] inputSizes = new int[]{ 512, 1024, 2048, 4096,
+            8192, 16384, 32768, 65536, 131072, 262144, 524288};
 
     @Before
     public void before() {
@@ -185,7 +185,7 @@ public class BenchmarkTest_Parallel {
             }
             private int dowork(){
                 int count = 0;
-                for (int i = 0; i<getRandInt(); i++){
+                for (int i = 0; i<getRandInt2(); i++){
                     count++;
                 }
                 return count;
@@ -200,6 +200,7 @@ public class BenchmarkTest_Parallel {
             public void run() {
                 for (int i=0; i<size; i++){
                     if (i%3==0) {
+                        queue.poll();
                     } else {
                         int a = getRandInt();
 
@@ -214,7 +215,7 @@ public class BenchmarkTest_Parallel {
             }
             private int dowork(){
                 int count = 0;
-                for (int i = 0; i<getRandInt(); i++){
+                for (int i = 0; i<getRandInt2(); i++){
                     count++;
                 }
                 return count;
@@ -237,7 +238,7 @@ public class BenchmarkTest_Parallel {
             }
             private int dowork(){
                 int count = 0;
-                for (int i = 0; i<getRandInt(); i++){
+                for (int i = 0; i<getRandInt2(); i++){
                     count++;
                 }
                 return count;
@@ -262,7 +263,7 @@ public class BenchmarkTest_Parallel {
             }
             private int dowork(){
                 int count = 0;
-                for (int i = 0; i<getRandInt(); i++){
+                for (int i = 0; i<getRandInt2(); i++){
                     count++;
                 }
                 return count;
@@ -287,7 +288,7 @@ public class BenchmarkTest_Parallel {
             }
             private int dowork(){
                 int count = 0;
-                for (int i = 0; i<getRandInt(); i++){
+                for (int i = 0; i<getRandInt2(); i++){
                     count++;
                 }
                 return count;
@@ -301,6 +302,9 @@ public class BenchmarkTest_Parallel {
 
     private int getRandInt() {
         return (int )(Math.random() * 500000 + 1);
+    }
+    private int getRandInt2() {
+        return (int )(Math.random() * 10000 + 1);
     }
 
     //private enum QueueType {BLOCKING, PIPELINED_DEFAULT};
