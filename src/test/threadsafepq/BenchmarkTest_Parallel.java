@@ -13,7 +13,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class BenchmarkTest_Parallel {
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private PriorityBlockingQueue<Integer> blockingQueue;
-    private int[] threadCases = new int[]{1, 8,10};
+    private int[] threadCases = new int[]{1, 2, 4, 8, 16, 32, 64, 128};
     private int[] inputSizes = new int[]{10,100,1000,10_000,100_000,
             200_000,300_000,400_000,500_000,600_000,700_000,800_000,900_000};
 
