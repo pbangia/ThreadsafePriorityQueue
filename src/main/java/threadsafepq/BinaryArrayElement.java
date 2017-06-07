@@ -5,39 +5,66 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by Taranpreet on 26/05/2017.
+ * A single instance of BinaryArrayElement<E> represents
+ * a single node in the heap (binary tree) of the pipelined heap used for the queue.
  */
 public class BinaryArrayElement<E> implements Serializable {
 
+    /**
+     * Used to uniquely serialize an instance of this class.
+     */
     private static final long serialVersionUID = 43L;
 
+    /**
+     * True if this node is a non-null entry in the heap, false otherwise.
+     */
     private boolean isActive;
+    /**
+     * Represents the generic type value to be stored inside the node.
+     */
     private E value;
+    /**
+     * Represents the number of inactive nodes sub-rooted at this node.
+     */
     private int capacity;
-    private BinaryArrayElement<E> leftChild;
-    private BinaryArrayElement<E> rightChild;
+    /**
+     * Represents the user-defined comparator passed in the construction of the queue.
+     * This is used to determine the relative priorities of different nodes.
+     */
     private Comparator<? super E> comparator;
-    private final ReentrantLock reentrantLock;
 
-    public BinaryArrayElement(boolean isActive, E value, int capacity, BinaryArrayElement<E> leftChild,
-                              BinaryArrayElement<E> rightChild, Comparator<? super E> comparator,
-                              ReentrantLock reentrantLock) {
+    /**
+     * Constructs a single instance of BinaryArrayElement<E>
+     *
+     * @param isActive   true if this node is active on construction
+     * @param value      nullable value representing the node
+     * @param capacity   number of inactive nodes sub-rooted at this node
+     * @param comparator comparator used to determine the relative priorities of different nodes
+     */
+    public BinaryArrayElement(boolean isActive, E value, int capacity, Comparator<? super E> comparator) {
         this.isActive = isActive;
         this.value = value;
         this.capacity = capacity;
-        this.leftChild = leftChild;
-        this.rightChild = rightChild;
         this.comparator = comparator;
-        this.reentrantLock = reentrantLock;
     }
 
+    /**
+     * Returns true if this BinaryArrayElement is active
+     * @return true if this BinaryArrayElement is active
+     */
     public boolean isActive() {
         return isActive;
     }
 
+    /**
+     * Returns true if the value in this BinaryArrayElement is greater than the argument value.
+     * This implementation will use natural ordering to determine the relativity in priorities between
+     * the two values if no comparator is provided.
+     * @param o The other value to compare this BinaryArrayElement's value with
+     * @return true if the value in this BinaryArrayElement is greater than the argument value
+     */
     public boolean isGreaterThan(E o) {
         int result;
         if (comparator != null) {
@@ -49,82 +76,58 @@ public class BinaryArrayElement<E> implements Serializable {
         return (result > 0);
     }
 
+    /**
+     * Decrements the capacity of this BinaryArrayElement.
+     */
     public void decrementCapacity() {
         this.capacity--;
     }
 
+    /**
+     * Increments the capacity of this BinaryArrayElement.
+     */
     public void incrementCapacity() {
         this.capacity++;
     }
 
-    public void lock() {
-        reentrantLock.lock();
-        if (leftChild != null) {
-            leftChild.lock();
-        }
-        if (rightChild != null) {
-            rightChild.lock();
-        }
-    }
-
-    public void unlock() {
-        reentrantLock.unlock();
-        if (leftChild != null) {
-            leftChild.unlock();
-        }
-        if (rightChild != null) {
-            rightChild.unlock();
-        }
-    }
-
-    public void unlockRightChild() {
-        if (rightChild != null) {
-            rightChild.unlock();
-        }
-    }
-
-    public void unlockLeftChild() {
-        if (leftChild != null) {
-            leftChild.unlock();
-        }
-    }
-
-    public void unlockNode() {
-        reentrantLock.unlock();
-    }
-
-    public void unlockButKeepLeft() {
-        unlockNode();
-        unlockRightChild();
-    }
-
-    public void unlockButKeepRight() {
-        unlockNode();
-        unlockLeftChild();
-    }
-
+    /**
+     * Sets the active field to the argument provided.
+     * @param active true if this instance's active field needs to be set to true, false otherwise.
+     */
     public void setActive(boolean active) {
         isActive = active;
     }
 
+    /**
+     * Returns the value associated with this BinaryArrayElement
+     * @return the value associated with this BinaryArrayElement
+     */
     public E getValue() {
         return value;
     }
 
+    /**
+     * Sets the value associated with this BinaryArrayElement
+     * @param value the new value to be associated with this BinaryArrayElement
+     */
     public void setValue(E value) {
         this.value = value;
     }
 
+    /**
+     * Returns the capacity of this BinaryArrayElement
+     * @return the capacity of this BinaryArrayElement
+     */
     public int getCapacity() {
         return capacity;
     }
 
+    /**
+     * Sets the capacity of this BinaryArrayElement
+     * @param capacity the new capacity of this BinaryArrayElement
+     */
     public void setCapacity(int capacity) {
         this.capacity = capacity;
-    }
-
-    public Comparator<? super E> getComparator() {
-        return comparator;
     }
 
     @Override

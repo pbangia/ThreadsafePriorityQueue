@@ -14,17 +14,51 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E> {
 
+    /**
+     * Used to uniquely serialize an instance of this class.
+     */
     private static final long serialVersionUID = 42L;
-
+    /**
+     * Default number of elements in this queue.
+     */
     private static final int DEFAULT_CAPACITY_NUM_ELEMENTS = 11;
+    /**
+     * Default number of levels in the heap of this queue.
+     */
     private static final int DEFAULT_CAPACITY_NUM_LEVELS = 4;
-
+    /**
+     * Represents the Reentrantlock used to determine whether the queue is empty
+     */
+    private final Lock notEmptyLock = new ReentrantLock();
+    /**
+     * Represents the Condition used to force a thread to sleep until the queue becomes non-empty.
+     */
+    private final Condition notEmptyCondition = notEmptyLock.newCondition();
+    /**
+     * Represents the array of TokenArrayElements used to help with the pipelining of operations in this queue.
+     * This array has a length equal to the number of levels in the binary tree used in the heap.
+     */
+    private TokenArrayElement<E>[] tokenArray;
+    /**
+     * Represents the array of BinaryArrayElements used to store the nodes of the values
+     * inserted into this queue. For each node at index i in this array, its left child is stored
+     * at index 2i + 1, while its right child is stored at index 2i + 2.
+     */
     private BinaryArrayElement<E>[] binaryArray;
+    /**
+     * Represents the user-defined comparator passed in the construction of the queue.
+     * This is used to determine the relative priorities of different nodes.
+     */
     private Comparator<? super E> comparator;
+    /**
+     * Represents the size of this priority queue i.e. number of active nodes in the binaryArray
+     */
     private AtomicInteger size;
-
-    private final Lock lock = new ReentrantLock();
-    private final Condition notEmpty = lock.newCondition();
+    /**
+     * Represents the height of the heap and is consequently equal to the length of tokenArray.
+     * This is deliberately not an atomic type because this class'es implementation accommodates for only
+     * one thread to write to this variable at any given time.
+     */
     private int treeHeight;
 
     /**
@@ -37,8 +71,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
     /**
      * Creates a PriorityBlockingQueue containing the elements in the specified collection.
-     *
      * @param c the collection whose elements are to be placed into this priority queue
+     * @throws IllegalArgumentException if input collection is null
      */
     public PipelinedPriorityQueue(Collection<? extends E> c) {
         if (c == null) throw new IllegalArgumentException("Input collection cannot be null");
@@ -67,6 +101,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param initialCapacity the initial capacity for this priority queue
      * @param comparator      the comparator that will be used to order this priority queue. If null, the natural ordering of the elements will be used.
+     * @throws IllegalArgumentException if initialCapacity is less than 1
      */
     public PipelinedPriorityQueue(int initialCapacity, Comparator<? super E> comparator) {
         if (initialCapacity <= 0) throw new IllegalArgumentException("Initial capacity must be greater than 0");
@@ -74,25 +109,39 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         init(initialCapacity, levels, comparator);
     }
 
+    /**
+     * Initialises all fields inside this PipelinedPriorityQueue
+     *
+     * @param capacity   capacity of this PipelinedPriorityQueue
+     * @param levels     number of levels in the heap of this PipelinedPriorityQueue
+     * @param comparator comparator used to order this PipelinedPriorityQueue
+     */
     private void init(int capacity, int levels, Comparator<? super E> comparator) {
         this.binaryArray = new BinaryArrayElement[capacity];
         this.comparator = comparator;
         this.size = new AtomicInteger(0);
+        this.tokenArray = new TokenArrayElement[levels];
         this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(capacity);
         initInternalArrays();
     }
 
+    /**
+     * Initialises the BinaryArrayElement and TokenArrayElement arrays.
+     */
     private void initInternalArrays() {
         initBinaryArray();
+        initTokenArray();
     }
 
+    /**
+     * Initialises the BinaryArrayElement array.
+     */
     private void initBinaryArray() {
         initBinaryArrayElement(0);
     }
 
     /**
-     * Recursive postorder traversal to initialise elements in the binary array
-     *
+     * Recursive post-order traversal to initialise elements in the binary array
      * @param i index of element to be initialised
      */
     private void initBinaryArrayElement(int i) {
@@ -112,10 +161,22 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             capacity += rightChild.getCapacity();
         }
 
-        BinaryArrayElement<E> element = new BinaryArrayElement<E>(false, null, capacity,
-                leftChild, rightChild, comparator, new ReentrantLock(true));
+        BinaryArrayElement<E> element = new BinaryArrayElement<>(false, null, capacity, comparator);
         binaryArray[i] = element;
     }
+
+    /**
+     * Initialises all of the elements in the token array
+     */
+    private void initTokenArray() {
+        for (int i = 0; i < tokenArray.length; i++) {
+            TokenArrayElement<E> element = new TokenArrayElement<E>(
+                    null, 1, comparator,
+                    new TokenArrayElement.TokenLock(true));
+            tokenArray[i] = element;
+        }
+    }
+
 
     /**
      * Inserts the specified element into this priority queue.
@@ -141,37 +202,52 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      */
     public boolean offer(E e) {
         if (e == null) throw new NullPointerException("Specified element is null");
+        tokenArray[0].lock();
+        if (tokenArray.length > 1) tokenArray[1].lock();
+        tokenArray[0].setValue(e);
+        tokenArray[0].setPosition(0);
 
-        binaryArray[0].lock();
         if (binaryArray[0].getCapacity() < 1) {
             resize();
         }
-        binaryArray[0].unlock();
-        TokenElement<E> tElement = new TokenElement<>(e, 0, comparator);
-        while (!tElement.isCompleted()) {
-            tElement = localEnqueue(tElement);
+
+        int level=0;
+        while (level < tokenArray.length) {
+            boolean result = localEnqueue(level);
+            if (result) {
+                incrementSize();
+                if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
+                tokenArray[level].unlock();
+                break;
+            }
+            tokenArray[level].unlock();
+            level++;
+            if (level + 1 < tokenArray.length) tokenArray[level + 1].lock();
         }
-        size.getAndIncrement();
+
         return true;
     }
 
     /**
-     * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block or return false.
+     * Inserts the specified element into this priority queue.
+     * As the queue is unbounded, this method will never block or return false.
      *
      * @param e       the element to add
      * @param timeout This parameter is ignored as the method never blocks
      * @param unit    This parameter is ignored as the method never blocks
      * @return true
-     * @throws InterruptedException
      */
     public boolean offer(E e, long timeout, TimeUnit unit) {
         return offer(e);
     }
 
     /**
-     * Inserts the specified element into this priority queue. As the queue is unbounded, this method will never block.
+     * Inserts the specified element into this priority queue.
+     * As the queue is unbounded, this method will never block.
      *
      * @param e the element to add
+     * @throws ClassCastException   if the specified element cannot be compared with elements currently in the priority queue according to the priority queue's ordering
+     * @throws NullPointerException if the specified element is null
      */
     public void put(E e) {
         offer(e);
@@ -183,7 +259,10 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E peek() {
-        return binaryArray[0].getValue();
+        tokenArray[0].lock();
+        E value = binaryArray[0].getValue();
+        tokenArray[0].unlock();
+        return value;
     }
 
     /**
@@ -194,10 +273,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws NoSuchElementException if this queue is empty
      */
     public E element() {
+        tokenArray[0].lock();
         if (size.get() == 0) {
+            tokenArray[0].unlock();
             throw new NoSuchElementException("Queue is empty");
         }
-        return peek();
+        E value = peek();
+        tokenArray[0].unlock();
+        return value;
     }
 
     /**
@@ -206,19 +289,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue, or null if this queue is empty
      */
     public E poll() {
+        tokenArray[0].lock();
+        if (tokenArray.length > 1) tokenArray[1].lock();
         E value = binaryArray[0].getValue();
         binaryArray[0].setActive(false);
         binaryArray[0].incrementCapacity();
-        TokenElement<E> tElement = new TokenElement<E>( null, 0, comparator);
+        tokenArray[0].setPosition(0);
 
         int level = 0;
-        boolean done = false;
-        while (level < treeHeight && !done) {
-            tElement = localDequeue(tElement);
+        while (level < tokenArray.length) {
+            boolean result = localDequeue(level);
+            if (result) {
+                decrementSize();
+                tokenArray[level].unlock();
+                if (level + 1 < tokenArray.length) tokenArray[level + 1].unlock();
+                break;
+            }
+            tokenArray[level].unlock();
             level++;
+            if (level + 1 < tokenArray.length) tokenArray[level + 1].lock();
         }
-
-        size.decrementAndGet();
         return value;
     }
 
@@ -229,27 +319,28 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @throws InterruptedException if interrupted while waiting
      */
     public E take() throws InterruptedException {
+        notEmptyLock.lock();
         while (size.get() == 0) {
-            notEmpty.await();
-            // TODO update other methods to cause the signal for this await()
+            notEmptyCondition.await();
         }
 
         E head = poll();
         assert head != null;
+        notEmptyLock.unlock();
         return head;
     }
 
     /**
-     * Retrieves and removes the head of this queue,
-     * waiting up to the specified wait time if necessary for an element to become available.
+     * Throws an UnsupportedOperationException as this method is not supported
+     * by this implementation of BlockingQueue.
      *
      * @param timeout how long to wait before giving up, in units of unit
      * @param unit    a TimeUnit determining how to interpret the timeout parameter
      * @return the head of this queue, or null if the specified waiting time elapses before an element is available
-     * @throws InterruptedException if interrupted while waiting
+     * @throws UnsupportedOperationException every time because this class does not support this operation
      */
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -259,25 +350,27 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return the head of this queue
      */
     public E remove() {
-        if (size.get() != 0) {
-            return poll();
+        tokenArray[0].lock();
+        if (size.get() == 0) {
+            tokenArray[0].unlock();
+            throw new NoSuchElementException("Queue is empty");
         } else {
-            // TODO wait
-            return null;
+            E value = poll();
+            tokenArray[0].unlock();
+            return value;
         }
     }
 
     /**
-     * Removes a single instance of the specified element from this queue, if it is present. More formally, removes an element e such that o.equals(e), if this queue contains one or more such elements.
-     * Returns true if this queue contained the specified element
-     * (or equivalently, if this queue changed as a result of the call).
+     * Throws an UnsupportedOperationException as this method is not supported
+     * by this implementation of BlockingQueue.
      *
      * @param o element to be removed from this queue, if present
      * @return if this queue changed as a result of the call
-     * @throws
+     * @throws UnsupportedOperationException every time because this class does not support this operation
      */
     public boolean remove(Object o) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -308,12 +401,14 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
     }
 
     /**
-     * Removes all of the elements from this collection (optional operation).
-     * The collection will be empty after this method returns.
+     * Removes all of the elements from this queue.
+     * The queue will be empty after this method returns.
      */
     public void clear() {
+        lockAllLevels();
         initBinaryArray();
         size.set(0);
+        unlockAllLevels();
     }
 
     /**
@@ -327,13 +422,16 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param c the collection to transfer elements into
      * @return the number of elements transferred
-     * @throws UnsupportedOperationException if addition of elements is not supported by the specified collection
      * @throws ClassCastException            if the class of an element of this queue prevents it from being added to the specified collection
      * @throws NullPointerException          if the specified collection is null
      * @throws IllegalArgumentException      if the specified collection is this queue, or some property of an element of this queue prevents it from being added to the specified collection
      */
     public int drainTo(Collection<? super E> c) {
-        return 0;
+        if (c == null)
+            throw new NullPointerException();
+        if (c == this)
+            throw new IllegalArgumentException();
+        return drainTo(c, c.size());
     }
 
     /**
@@ -348,13 +446,26 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @param c           the collection to transfer elements into
      * @param maxElements the maximum number of elements to transfer
      * @return the number of elements transferred
-     * @throws UnsupportedOperationException if addition of elements is not supported by the specified collection
      * @throws ClassCastException            if the class of an element of this queue prevents it from being added to the specified collection
      * @throws NullPointerException          if the specified collection is null
      * @throws IllegalArgumentException      if the specified collection is this queue, or some property of an element of this queue prevents it from being added to the specified collection
      */
     public int drainTo(Collection<? super E> c, int maxElements) {
-        return 0;
+        if (c == null)
+            throw new NullPointerException();
+        if (c == this)
+            throw new IllegalArgumentException();
+        if (maxElements <= 0)
+            return 0;
+        int n = 0;
+        lockAllLevels();
+        E e;
+        while (n < maxElements && (e = poll()) != null) {
+            c.add(e);
+            ++n;
+        }
+        unlockAllLevels();
+        return n;
     }
 
     /**
@@ -365,7 +476,8 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @return an array containing all of the elements in this collection
      */
-    public synchronized Object[] toArray() {
+    public Object[] toArray() {
+        lockAllLevels();
         Object[] result = new Object[size.get()];
         int taken = 0;
         int runner = 0;
@@ -378,9 +490,9 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         if (taken != size.get()) {
-            // TODO something went wrong
+            throw new IllegalStateException("toArray() unsuccessful");
         }
-
+        unlockAllLevels();
         return result;
     }
 
@@ -395,6 +507,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return an array containing all of the elements in this queue
      */
     public <T> T[] toArray(T[] a) {
+        lockAllLevels();
         if (a.length < size.get()) {
             return (T[])toArray();
         }
@@ -413,6 +526,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
             a[taken] = null;
         }
 
+        if (taken != size.get()) {
+            throw new IllegalStateException("toArray() unsuccessful");
+        }
+
+        unlockAllLevels();
         return a;
     }
 
@@ -429,28 +547,7 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return an iterator over the elements in this queue
      */
     public Iterator<E> iterator() {
-        // TODO change this to match the documentation specifications
-        return new Iterator<E>() {
-            public boolean hasNext() {
-                return peek() != null;
-            }
-
-            public E next() {
-                if (peek() == null) throw new NoSuchElementException();
-                boolean taken = false;
-                E e = null;
-                while (!taken) {
-                    try {
-                        e = take();
-                    } catch (InterruptedException ex) {
-                    }
-                }
-                return e;
-            }
-
-            public void remove() {
-            }
-        };
+        return new PipelinedIterator<>();
     }
 
     /**
@@ -462,11 +559,12 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * @return <tt>true</tt> if this queue contains the specified element
      */
     public boolean contains(Object o) {
-
+        lockAllLevels();
         for (BinaryArrayElement e : binaryArray) {
             if (e.getValue() == null) continue;
             if (e.getValue().equals(o)) return true;
         }
+        unlockAllLevels();
         return false;
     }
 
@@ -475,19 +573,28 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      *
      * @param c collection to be checked for containment in this collection
      * @return if this collection contains all of the elements in the specified collection
-     * @throws ClassCastException   if the types of one or more elements in the specified collection are incompatible with this collection
      * @throws NullPointerException if the specified collection contains one or more null elements and this collection does not permit null elements
      */
     public boolean containsAll(Collection<?> c) {
+
+        // preliminary filtering for input
+        Iterator<E> iterator = (Iterator<E>) c.iterator();
+        while (iterator.hasNext()) {
+            E next = iterator.next();
+            if (next == null) throw new NullPointerException("Found null element in input collection!");
+        }
+
+        lockAllLevels();
         if (c.size() > size.get()) return false;
 
-        HashSet set1 = new HashSet(c);
+        Set inputSet = new HashSet(c);
         int count = 0;
         for (BinaryArrayElement e : binaryArray) {
             if (e.getValue() == null) continue;
-            if (set1.contains(e.getValue())) count++;
+            if (inputSet.contains(e.getValue())) count++;
         }
-        return set1.size() == count;
+        unlockAllLevels();
+        return inputSet.size() == count;
     }
 
     /**
@@ -498,127 +605,107 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
      * <tt>UnsupportedOperationException</tt> unless <tt>add</tt> is
      * overridden (assuming the specified collection is non-empty).
      *
-     * @throws UnsupportedOperationException if the addAll operation is not supported by this collection
      * @throws ClassCastException            if the class of an element of the specified collection prevents it from being added to this collection
      * @throws NullPointerException          if the specified collection contains a null element and this collection does not permit null elements, or if the specified collection is null
      * @throws IllegalArgumentException      if some property of an element of the specified collection prevents it from being added to this collection
      * @throws IllegalStateException         if not all the elements can be added at this time due to insertion restrictions
      * @see #add(Object)
+     * @return true
      */
     public boolean addAll(Collection<? extends E> c) {
         for (E e : c) {
             add(e);
         }
-        return false;
+        return true;
     }
 
     /**
+     * Throws an UnsupportedOperationException() because this method is not supported
+     * by this PipelinedPriorityQueue.
      *
-     * <p>This implementation iterates over this collection, checking each
-     * element returned by the iterator in turn to see if it's contained
-     * in the specified collection.  If it's so contained, it's removed from
-     * this collection with the iterator's <tt>remove</tt> method.
-     *
-     * <p>Note that this implementation will throw an
-     * <tt>UnsupportedOperationException</tt> if the iterator returned by the
-     * <tt>iterator</tt> method does not implement the <tt>remove</tt> method
-     * and this collection contains one or more elements in common with the
-     * specified collection.
-     *
-     * @throws UnsupportedOperationException if the removeAll method is not supported by this collection
+     * @throws UnsupportedOperationException every time because this class does not support this operation
      * @throws ClassCastException if the types of one or more elements in this collection are incompatible with the specified collection
      * @throws NullPointerException if this collection contains one or more null elements and the specified collection does not support null elements, or if the specified collection is null
-     *
-     * @see #remove(Object)
-     * @see #contains(Object)
      */
     public boolean removeAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     /**
-     * <p>This implementation iterates over this collection, checking each
-     * element returned by the iterator in turn to see if it's contained
-     * in the specified collection.  If it's not so contained, it's removed
-     * from this collection with the iterator's <tt>remove</tt> method.
+     * Throws an UnsupportedOperationException() because this method is not supported
+     * by this PipelinedPriorityQueue.
      *
-     * <p>Note that this implementation will throw an
-     * <tt>UnsupportedOperationException</tt> if the iterator returned by the
-     * <tt>iterator</tt> method does not implement the <tt>remove</tt> method
-     * and this collection contains one or more elements not present in the
-     * specified collection.
-     *
-     * @throws UnsupportedOperationException  if the retainAll operation is not supported by this collection
-     * @throws ClassCastException   if the types of one or more elements in this collection are incompatible with the specified collection
-     * @throws NullPointerException  if this collection contains one or more null elements and the specified collection does not permit null elements, or if the specified collection is null
-     *
-     * @see #remove(Object)
-     * @see #contains(Object)
+     * @throws UnsupportedOperationException every time because this class does not support this operation
+     * @throws ClassCastException if the types of one or more elements in this collection are incompatible with the specified collection
+     * @throws NullPointerException if this collection contains one or more null elements and the specified collection does not support null elements, or if the specified collection is null
      */
     public boolean retainAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
-    private TokenElement<E> localEnqueue(TokenElement<E> tElement) {
-        int position = tElement.getPosition();
-        E value = tElement.getValue();
+    /**
+     * Attemps to enqueue an item from the token array to the specified position inside that TokenArrayElement
+     * @param i index of the node inside token array
+     * @return true if local enqueue was successful, false otherwise
+     */
+    private boolean localEnqueue(int i) {
+        int position = tokenArray[i].getPosition();
+        E value = tokenArray[i].getValue();
         BinaryArrayElement<E> element = binaryArray[position];
-        element.lock();
 
         if (!element.isActive()) {
             element.setValue(value);
             element.setActive(true);
             element.decrementCapacity();
-            tElement.setCompleted(true);
-            element.unlock();
-            return tElement;
-        } else if (tElement.isGreaterThan(element.getValue())) {
-            E temp = tElement.getValue();
-            tElement.setValue(element.getValue());
+            return true;
+        } else if (tokenArray[i].isGreaterThan(binaryArray[position].getValue())) {
+            E temp = tokenArray[i].getValue();
+            tokenArray[i].setValue(binaryArray[position].getValue());
             element.setValue(temp);
         }
 
         element.decrementCapacity();
+        tokenArray[i + 1].setValue(tokenArray[i].getValue());
+        tokenArray[i].setValue(null);
 
         BinaryArrayElement<E> left = getLeft(position);
         BinaryArrayElement<E> right = getRight(position);
         if (left == null && right == null) {
-            element.unlock();
-            return tElement;
+            return true;//check
         }
 
         int next;
         if (left == null) {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
         } else if (right == null) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
         } else if (left.getValue() == null) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
         } else if (right.getValue() == null) {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
         } else if (left.getCapacity() > right.getCapacity()) {
             next = getLeftIndex(position);
-            element.unlockButKeepLeft();
         } else {
             next = getRightIndex(position);
-            element.unlockButKeepRight();
         }
-        tElement.setPosition(next);
-        return tElement;
+        tokenArray[i + 1].setPosition(next);
+
+        return false;
     }
 
-    private TokenElement<E> localDequeue(TokenElement<E> tElement) {
-        int current = tElement.getPosition();
+    /**
+     * Attemps to dequeue an item from the token array to the specified position inside that TokenArrayElement
+     * @param i index of the node inside token array
+     * @return true if local dequeue was successful, false otherwise
+     */
+    private boolean localDequeue(int i) {
+        int current = tokenArray[i].getPosition();
         BinaryArrayElement<E> leftChild = getLeft(current);
         BinaryArrayElement<E> rightChild = getRight(current);
 
         if ((leftChild == null || !leftChild.isActive())
                 && (rightChild == null || !rightChild.isActive())) {
-            return tElement;
+            return true;
         }
 
         BinaryArrayElement<E> greatestChild;
@@ -640,30 +727,15 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         greatestChild.setActive(false);
         greatestChild.setValue(null);
         greatestChild.incrementCapacity();
-        tElement.setPosition(greatestChildPosition);
-        return tElement;
+        tokenArray[i + 1].setPosition(greatestChildPosition);
+        return false;
     }
 
-    private void checkCapacity() {
-        if (getRoot().getCapacity() < 1) {
-            int newSize = binaryArray.length * 2;
-            BinaryArrayElement[] temp = new BinaryArrayElement[newSize];
-
-            int elementPos = 1;
-            for (BinaryArrayElement e : binaryArray) {
-                e.setCapacity(e.getCapacity() * 2); //needs fixing
-                temp[elementPos] = e;
-                elementPos++;
-            }
-
-            binaryArray = temp;
-        }
-    }
-
-    private BinaryArrayElement<E> getRoot() {
-        return binaryArray[0];
-    }
-
+    /**
+     * Returns the left child of an element given its index in the binary array
+     * @param index index of the element in the binary array
+     * @return its left child, null if there is no left child
+     */
     private BinaryArrayElement<E> getLeft(int index) {
         int leftIndex = index * 2 + 1;
         if (leftIndex >= binaryArray.length) {
@@ -672,6 +744,11 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return binaryArray[index * 2 + 1];
     }
 
+    /**
+     * Returns the right child of an element given its index in the binary array
+     * @param index index of the element in the binary array
+     * @return its right child, null if there is no right child
+     */
     private BinaryArrayElement<E> getRight(int index) {
         int rightIndex = index * 2 + 2;
         if (rightIndex >= binaryArray.length) {
@@ -680,18 +757,34 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         return binaryArray[index * 2 + 2];
     }
 
+    /**
+     * Returns the left child's index of an element given its index in the binary array
+     * @param index index of the element in the binary array
+     * @return its left child's index (which may be out of bounds of the heap)
+     */
     private int getLeftIndex(int index) {
         return index * 2 + 1;
     }
 
+    /**
+     * Returns the right child's index of an element given its index in the binary array
+     * @param index index of the element in the binary array
+     * @return its right child's index (which may be out of bounds of the heap)
+     */
     private int getRightIndex(int index) {
         return index * 2 + 2;
     }
 
     /**
-     * Increases the capacity of the array.
+     * Increases the capacity of the array. If the current size of the heap is less than 64, then the
+     * capacity is doubled, otherwise it is grown by 50%.
      */
     private void resize() {
+        int tokenArrayLength = tokenArray.length;
+        for (int i = 2; i < tokenArrayLength; i++) {
+            tokenArray[i].lock();
+        }
+
         int oldCapacity = binaryArray.length;
         // Double size if small; else grow by 50%
         int newCapacity = ((oldCapacity < 64) ?
@@ -708,13 +801,29 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         }
 
         updateCapacities(0);
+        //resize token array same as current
         this.treeHeight = BinaryTreeUtils.convertSizeToNumLevels(newCapacity);
+
+        TokenArrayElement<E>[] temp = new TokenArrayElement[treeHeight];
+        for (int i = 0; i < tokenArray.length; i++) {
+            temp[i] = tokenArray[i];
+        }
+
+        for (int i = tokenArray.length; i < treeHeight; i++) {
+            temp[i] = new TokenArrayElement(null, 1, comparator,
+                    new TokenArrayElement.TokenLock(true));
+        }
+        tokenArray = temp;
+
+        for (int i = 2; i < tokenArrayLength; i++) {
+            tokenArray[i].unlock();
+        }
     }
 
-    private int getLevelOfIndex(int index) {
-        return (int) Math.floor(Math.log(index + 1) / Math.log(2)) + 1;
-    }
-
+    /**
+     * Recursive post-order traversal to update the capacities of all the nodes inside the binary array
+     * @param i index of the current node in the binary array
+     */
     private void updateCapacities(int i) {
         if (i < 0 || i >= binaryArray.length) return;
         updateCapacities(getLeftIndex(i));
@@ -735,7 +844,44 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
         binaryArray[i].setCapacity(capacity);
     }
 
-    @Override // TODO update to reflect new fields
+    /**
+     * Locks all nodes in the token array
+     */
+    private void lockAllLevels() {
+        for (TokenArrayElement tae : tokenArray) {
+            tae.lock();
+        }
+    }
+
+    /**
+     * Unlocks all nodes in the token array
+     */
+    private void unlockAllLevels() {
+        for (TokenArrayElement tae : tokenArray) {
+            tae.unlock();
+        }
+    }
+
+    /**
+     * Increments the size of this PipelinedPriorityQueue i.e. number of active nodes in the heap.
+     * This also signals any sleeping threads that are waiting for this queue to be non-empty.
+     */
+    private void incrementSize() {
+        if (size.incrementAndGet() > 1) {
+            notEmptyLock.lock();
+            notEmptyCondition.signal();
+            notEmptyLock.unlock();
+        }
+    }
+
+    /**
+     * Decrements the size of this PipelinedPriorityQueue i.e. number of active nodes in the heap.
+     */
+    private void decrementSize() {
+        size.decrementAndGet();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
@@ -745,31 +891,35 @@ public class PipelinedPriorityQueue<E> implements Serializable, BlockingQueue<E>
 
         return new EqualsBuilder()
                 .append(binaryArray, that.binaryArray)
-                .append(treeHeight, that.treeHeight)
+                .append(tokenArray, that.tokenArray)
                 .append(comparator, that.comparator)
+                .append(size, that.size)
+                .append(treeHeight, that.treeHeight)
                 .isEquals();
     }
 
-    @Override // TODO update to reflect new fields
+    @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .append(binaryArray)
-                .append(treeHeight)
+                .append(tokenArray)
                 .append(comparator)
+                .append(size)
+                .append(treeHeight)
                 .toHashCode();
     }
 
-    @Override
-    public String toString() {
-        String s = "";
-        int seen = 0;
-        for (BinaryArrayElement<E> e: binaryArray){
-            if (seen<size.get() && e.getValue()!=null) {
-                s += "\n" + e.toString();
-            }
-            seen++;
-        }
-        return s;
+    private class PipelinedIterator<T> implements Iterator<T> {
 
+        @Override
+        public boolean hasNext() {
+            return peek() != null;
+        }
+
+        @Override
+        public T next() {
+            if (peek() == null) throw new NoSuchElementException();
+            return (T) poll();
+        }
     }
 }
