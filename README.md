@@ -15,7 +15,7 @@ Implement a thread-safe priority queue that performs better than Java's Priority
 
 1. mvn package
 2. cd target/
-3. java -jar threadsafe-pq-1.0-SNAPSHOT-jar-with-dependencies.jar < PATH_TO_INPUT_FILE
+3. java -jar threadsafe-pq-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 
 ## Usage instructions
