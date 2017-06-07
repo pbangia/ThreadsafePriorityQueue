@@ -1,7 +1,9 @@
-package threadsafepq;
+package threadsafepq.parallel;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import threadsafepq.PipelinedPriorityQueue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +17,8 @@ import static org.junit.Assert.fail;
  * PipelinedPriorityQueue preserve the characterisitics of a PriorityQueue when accessed concurrently
  * by multiple threads.
  */
+
+@Ignore
 public class PipelinedPriorityQueueTest_ValidityInParallel {
 
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
