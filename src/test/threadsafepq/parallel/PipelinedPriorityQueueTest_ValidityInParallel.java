@@ -23,8 +23,8 @@ public class PipelinedPriorityQueueTest_ValidityInParallel {
 
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private int[] threadCases = new int[]{1, 2, 4, 6, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-    private int[] inputSizes = new int[]{10, 100, 1000, 10_000, 100_000};
-//            200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000};
+    private int[] inputSizes = new int[]{10, 100, 1000, 10_000};
+//            100_000, 200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000};
 
     @Before
     public void before() {
