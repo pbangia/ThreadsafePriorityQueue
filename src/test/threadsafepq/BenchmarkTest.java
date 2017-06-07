@@ -1,6 +1,7 @@
 package threadsafepq;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.concurrent.PriorityBlockingQueue;
  * Benchmark test used to compare the performance between Java's PriorityBlockingQueue
  * and PipelinedPriorityQueue
  */
+
+@Ignore
 public class BenchmarkTest {
     private PipelinedPriorityQueue<Integer> pipelinedQueue;
     private PriorityBlockingQueue<Integer> blockingQueue;
